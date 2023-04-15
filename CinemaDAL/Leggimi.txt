@@ -1,0 +1,6 @@
+﻿
+Prima creazione del DB:
+Scaffold-DbContext "Server=(localdb)\MSSQLLocalDB;database=Cinema;Trusted_Connection=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models
+
+Aggiornamento del DB
+Scaffold-DbContext "Server=(localdb)\MSSQLLocalDB;database=Cinema;Trusted_Connection=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -force

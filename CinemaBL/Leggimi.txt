@@ -1,0 +1,14 @@
+﻿BL 
+invoca DAL e trasforma con DTO
+==> fa il mapping tra DAL e DTO
+
+
+DTO
+Data Transfert Object
+
+
+------------------
+ho installato:
+------------------
+Install-Package AutoMapper
+------------------
