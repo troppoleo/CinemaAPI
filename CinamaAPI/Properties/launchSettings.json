@@ -9,7 +9,7 @@
     }
   },
   "profiles": {
-    "CinamaAPI": {
+    "CinemaAPI": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,

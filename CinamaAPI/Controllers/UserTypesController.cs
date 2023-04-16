@@ -3,7 +3,7 @@ using CinemaBL.Mapper;
 using CinemaDTO;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CinamaAPI.Controllers
+namespace CinemaAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
@@ -11,27 +11,14 @@ namespace CinamaAPI.Controllers
     {
         private readonly IUserTypeService _uts;
 
-        //public IActionResult Index()
-        //{
-        //    return View();
-        //}
-
         public UserTypesController(CinemaBL.IUserTypeService uts)
         {
             _uts = uts;
         }
 
         [HttpGet(Name = "GetUserTypes")]
-        public IEnumerable<UserTypeDTO>? GetUserTypes()
+        public IEnumerable<UserTypeDTO> GetUserTypes()
         {
-            //return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-            //{
-            //    Date = DateTime.Now.AddDays(index),
-            //    TemperatureC = Random.Shared.Next(-20, 55),
-            //    Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            //})
-            //.ToArray();
-
             return _uts.GetUserType();
         }
     }

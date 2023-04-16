@@ -11,25 +11,25 @@ namespace CinemaBL
 {
     public interface IUserTypeService
     {
-        List<UserTypeDTO>? GetUserType();
+        List<UserTypeDTO> GetUserType();
     }
 
     public class UserTypeService: IUserTypeService
     {
         private readonly CinemaContext _ctx;
-        private readonly IMapper _iau;
+        private readonly IMapper _mp;
 
-        public UserTypeService(CinemaDAL.Models.CinemaContext ctx, AutoMapper.IMapper iau)
+        public UserTypeService(CinemaDAL.Models.CinemaContext ctx, AutoMapper.IMapper mp)
         {
             _ctx = ctx;
-            _iau = iau;
+            _mp = mp;
         }
 
 
         public List<UserTypeDTO> GetUserType()
         {
             var ut = _ctx.UserTypes.ToList();
-            var dtoUT = _iau.Map<List<UserTypeDTO>>(ut);
+            var dtoUT = _mp.Map<List<UserTypeDTO>>(ut);
 
             return dtoUT;
         }

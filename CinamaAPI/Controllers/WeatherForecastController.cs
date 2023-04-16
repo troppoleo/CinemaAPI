@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace CinamaAPI.Controllers
+namespace CinemaAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
