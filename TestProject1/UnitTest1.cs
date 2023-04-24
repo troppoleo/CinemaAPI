@@ -7,18 +7,17 @@ namespace TestProject1
     {
         private CinemaContext _ctx;
 
-
-        //private readonly CinemaContext _ctx;
-
         [SetUp]
         public void Setup()
         {
             _ctx = new CinemaDAL.Models.CinemaContext();
         }
 
+        //[TestCase(1,1,1]
+        // per passare parametri ai test
         
         [Test]
-        public void Test_GetCinemaRooms()
+        public void GetCinemaRooms_CheckConter_ReturnTrue()
         {
 
             var cr = new CinemaBL.CinemaRoomService(_ctx);

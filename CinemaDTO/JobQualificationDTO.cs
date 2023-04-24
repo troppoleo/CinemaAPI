@@ -17,4 +17,17 @@ namespace CinemaDTO
         public virtual ICollection<EmployeeDTO> Employees { get; set; } = new List<EmployeeDTO>();
 
     }
+
+
+    /// <summary>
+    /// utile per la definizione di una nuova Job Qualification
+    /// </summary>
+    public class JobDTO
+    {
+
+        public string ShortDescr { get; set; } 
+
+        public string Description { get; set; }
+
+    }
 }

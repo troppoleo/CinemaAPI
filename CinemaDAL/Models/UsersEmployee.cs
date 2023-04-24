@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CinemaDAL.Models;
 
-public partial class Employee
+public partial class UsersEmployee
 {
     public int Id { get; set; }
 

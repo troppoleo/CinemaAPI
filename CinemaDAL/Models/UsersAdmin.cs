@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CinemaDAL.Models;
 
-public partial class Employee
+public partial class UsersAdmin
 {
     public int Id { get; set; }
 
@@ -11,13 +11,7 @@ public partial class Employee
 
     public string Surname { get; set; } = null!;
 
-    public int JobQualificationId { get; set; }
-
     public string UserName { get; set; } = null!;
 
     public string Password { get; set; } = null!;
-
-    public DateTime Birthdate { get; set; }
-
-    public virtual JobQualification JobQualification { get; set; } = null!;
 }

@@ -16,7 +16,7 @@ namespace CinemaBL.Mapper
                 opt => opt.MapFrom(src => $"{src.Description}"))
                 .ForMember(
                 dest => dest.Employees,
-                opt => opt.MapFrom(src=> src.Employees));
+                opt => opt.MapFrom(src=> src.UsersEmployees));
         }
     }
 }

@@ -6,6 +6,10 @@ namespace CinemaBL
 {
     public interface IJobQualificationService
     {
+        /// <summary>
+        /// crea un nuovo JobQualification
+        /// </summary>
+        void CreateNewJob(CinemaDTO.JobDTO job);
         List<string>? GetJobQualifications();
     }
 
@@ -18,11 +22,20 @@ namespace CinemaBL
         {
             _ctx = ctx;
             _mp = mp;
-        }        
+        }
+
+        public void CreateNewJob(CinemaDTO.JobDTO job)
+        {
+            JobQualification j = new JobQualification();
+            j.Description = job.Description;
+            j.ShortDescr = job.ShortDescr;
+
+            _ctx.JobQualifications.Add(j);
+        }
 
         public List<string> GetJobQualifications()
         {
-            var jq = _ctx.JobQualifications.Select(x=> x.Description).ToList();
+            var jq = _ctx.JobQualifications.Select(x => x.Description).ToList();
             //var dtoJQ = _mp.Map<List<JobQualificationDTO>>(jq);
 
             return jq;

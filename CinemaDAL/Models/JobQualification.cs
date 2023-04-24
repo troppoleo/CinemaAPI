@@ -3,6 +3,11 @@ using System.Collections.Generic;
 
 namespace CinemaDAL.Models;
 
+/// <summary>
+/// contiene le possibili mansioni che possono essere date ai soli EMPLOYEE:
+/// &gt; Responsabili di sala
+/// &gt; bigliettai
+/// </summary>
 public partial class JobQualification
 {
     public int Id { get; set; }
@@ -11,5 +16,5 @@ public partial class JobQualification
 
     public string Description { get; set; } = null!;
 
-    public virtual ICollection<Employee> Employees { get; set; } = new List<Employee>();
+    public virtual ICollection<UsersEmployee> UsersEmployees { get; set; } = new List<UsersEmployee>();
 }

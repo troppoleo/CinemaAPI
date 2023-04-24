@@ -1,0 +1,9 @@
+﻿cos'è "Issuer": nel file di configurazione???:
+  "Jwt": {
+    "Key": "veryVerySecretKey",
+    "Issuer": "http://localhost:44359/"
+  },
+
+------------------------------------------------------------------------------
+
+
