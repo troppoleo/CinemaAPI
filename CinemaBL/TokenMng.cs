@@ -13,8 +13,7 @@ namespace CinemaBL
 {
     public interface ITokenMng
     {
-        object BuildToken(UserModel? um, IConfiguration conf);
-        string GetValToken();
+        string BuildToken(UserModel? um, IConfiguration conf);
     }
 
     public class TokenMng : ITokenMng
@@ -24,7 +23,7 @@ namespace CinemaBL
         {
         }
 
-        public object BuildToken(UserModel? um, IConfiguration conf)
+        public string BuildToken(UserModel? um, IConfiguration conf)
         {
             List<Claim> llClaim = new List<Claim>();
             llClaim.AddRange(new[]
@@ -37,12 +36,15 @@ namespace CinemaBL
 
             switch (um.UserType)
             {
-                case UserModel.UserModelType.ADMIN:
+                case UserModel.UserModelType.ADMIN:                    
                     break;
 
                 case UserModel.UserModelType.EMPLOYEE:
-                    llClaim.Add(new Claim(JwtRegisteredClaimNames.Birthdate, um.Birthdate.ToString("yyyy-MM-dd")));
-                    llClaim.Add(new Claim(ClaimTypes.Role, um.JobQualification));
+                    llClaim.AddRange(new[]
+                    { 
+                        new Claim(JwtRegisteredClaimNames.Birthdate, um.Birthdate.ToString("yyyy-MM-dd")),
+                        new Claim(um.JobQualification, "true")
+                    });                    
 
                     break;
 
@@ -52,14 +54,6 @@ namespace CinemaBL
                     break;
             }
 
-            //var claims = new[] {
-            //    new Claim(JwtRegisteredClaimNames.Name,  um.Name),
-            //    //new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            //    //new Claim(JwtRegisteredClaimNames.Birthdate, um.Birthdate.ToString("yyyy-MM-dd")),
-            //    //new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            //    new Claim(ClaimTypes.Role, "Administrator") //role base auth
-            //    //new Claim(ClaimTypes.Role, um.JobQualification)
-            //};
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(conf["Jwt:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
@@ -70,21 +64,8 @@ namespace CinemaBL
                 expires: DateTime.Now.AddMinutes(30),
                 signingCredentials: creds);
 
-
-            //var token = new JwtSecurityToken(
-            //    conf["Jwt:Issuer"],
-            //    conf["Jwt:Issuer"],
-            //    claims,
-            //    expires: DateTime.Now.AddMinutes(30),
-            //    signingCredentials: creds);
-
             string tokenString = new JwtSecurityTokenHandler().WriteToken(token);
             return tokenString;
-        }
-
-        public string GetValToken()
-        {
-            return "tooooken";
         }
 
 

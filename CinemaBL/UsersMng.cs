@@ -30,8 +30,8 @@ namespace CinemaBL
             try
             {
                 // verifico se è un ADMIN
-                var ua = _ctx.UsersAdmins
-                    .Where(x => x.UserName == loginModel.UserName && x.Password == loginModel.Password).FirstOrDefault();
+                var ua = _ctx.UsersAdmins.Where(x => x.UserName == loginModel.UserName && x.Password == loginModel.Password).FirstOrDefault();
+
                 if (ua is not null)
                 {
                     return new CinemaDTO.UserModel()
@@ -48,7 +48,7 @@ namespace CinemaBL
                 if (em is not null)
                 {
                     UserModel userModel = new UserModel();
-
+                    userModel.UserType = UserModel.UserModelType.EMPLOYEE;
                     userModel.Birthdate = em.Birthdate;
                     userModel.Name = em.Name;
                     userModel.JobQualification = em.JobQualification.ShortDescr;

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CinemaAPI.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("[controller]/[action]")]
     public class LoginTokenController : ControllerBase
     {
         private readonly IConfiguration _conf;
@@ -28,8 +28,8 @@ namespace CinemaAPI.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("CreateToken")]
-        public IActionResult CreateToken([FromBody] LoginModel loginModel)
+        [HttpPost(Name ="PostCreateToken")]
+        public IActionResult PostCreateToken([FromBody] LoginModel loginModel)
         {
             UserModel? um = _userMng.Autheticate(loginModel);
             if (um is not null)
