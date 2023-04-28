@@ -18,12 +18,44 @@ namespace CinemaAPI.Controllers
             _uts = uts;
         }
 
-        //[AllowAnonymous] 
-        [Authorize(Roles = "EMPLOYEE", Policy = "GET_TICKET")]
-        [HttpGet(Name = "GetUserTypes")]
-        public IEnumerable<UserTypeDTO> GetUserTypes()
+
+
+        [Authorize(Roles = "EMPLOYEE")]
+        [HttpGet(Name = "GetUserTypes_EMPLOYEE")]
+        public IEnumerable<UserTypeDTO> GetUserTypes_EMPLOYEE()
         {
             return _uts.GetUserType();
         }
+
+        //[AllowAnonymous] 
+        [Authorize(Roles = "EMPLOYEE", Policy = "GET_TICKET")]
+        [HttpGet(Name = "GetUserTypes_EMPLOYEE_GET_TICKET")]
+        public IEnumerable<UserTypeDTO> GetUserTypes_EMPLOYEE_GET_TICKET()
+        {
+            return _uts.GetUserType();
+        }
+
+        [Authorize(Roles = "ADMIN")]
+        [HttpGet(Name = "GetUserTypes_ADMIN")]
+        public IEnumerable<UserTypeDTO> GetUserTypes_ADMIN()
+        {
+            foreach (var x in User.Claims)
+            {
+                string type = x.Type;
+                string val = x.Value;
+            }
+            return _uts.GetUserType();
+        }
+
+        [AllowAnonymous]
+        [HttpGet(Name = "GetUserTypes_AllowAnonymous")]
+        public IEnumerable<UserTypeDTO> GetUserTypes_AllowAnonymous()
+        {
+            return _uts.GetUserType();
+        }
+
+
+
+
     }
 }
