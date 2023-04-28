@@ -17,7 +17,7 @@ public partial class CinemaContext : DbContext
 
     public virtual DbSet<CinemaRoom> CinemaRooms { get; set; }
 
-    public virtual DbSet<JobQualification> JobQualifications { get; set; }
+    public virtual DbSet<JobEmployeeQualification> JobEmployeeQualifications { get; set; }
 
     public virtual DbSet<Projection> Projections { get; set; }
 
@@ -45,11 +45,11 @@ public partial class CinemaContext : DbContext
                 .HasColumnName("name");
         });
 
-        modelBuilder.Entity<JobQualification>(entity =>
+        modelBuilder.Entity<JobEmployeeQualification>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__JobQuali__3214EC07DE929701");
 
-            entity.ToTable("JobQualification", tb => tb.HasComment("contiene le possibili mansioni che possono essere date ai soli EMPLOYEE:\r\n> Responsabili di sala\r\n> bigliettai"));
+            entity.ToTable("JobEmployeeQualification", tb => tb.HasComment("contiene le possibili mansioni che possono essere date ai soli EMPLOYEE:\r\n> Responsabili di sala\r\n> bigliettai"));
 
             entity.Property(e => e.Description)
                 .HasMaxLength(250)

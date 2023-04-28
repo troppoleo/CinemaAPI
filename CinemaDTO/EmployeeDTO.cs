@@ -16,6 +16,6 @@ namespace CinemaDTO
 
         public int? JobQaulificationId { get; set; }
 
-        public virtual JobQualificationDTO? JobQaulification { get; set; }
+        public virtual JobEmployeeQualificationMapRefDTO? JobQaulification { get; set; }
     }
 }

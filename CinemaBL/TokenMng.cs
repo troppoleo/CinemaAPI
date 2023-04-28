@@ -61,7 +61,7 @@ namespace CinemaBL
                 conf["Jwt:Issuer"],
                 conf["Jwt:Issuer"],
                 llClaim,
-                expires: DateTime.Now.AddMinutes(30),
+                expires: DateTime.Now.AddDays(30), //expires: DateTime.Now.AddMinutes(30),
                 signingCredentials: creds);
 
             string tokenString = new JwtSecurityTokenHandler().WriteToken(token);

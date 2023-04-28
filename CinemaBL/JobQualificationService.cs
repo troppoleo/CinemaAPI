@@ -1,16 +1,16 @@
 ﻿using AutoMapper;
 using CinemaDAL.Models;
 using CinemaDTO;
+using Microsoft.EntityFrameworkCore;
 
 namespace CinemaBL
 {
     public interface IJobQualificationService
     {
-        /// <summary>
-        /// crea un nuovo JobQualification
-        /// </summary>
-        void CreateNewJob(CinemaDTO.JobDTO job);
-        List<string>? GetJobQualifications();
+        void CreateNewJob(JobEmployeeQualificationMinimalDTO job);
+        bool DeleteJobEmployeeQualification(int idJobEmp);
+        IEnumerable<JobEmployeeQualificationMapDTO> GetJobQualifications();
+        bool UpdateJobEmployeeQualification(JobEmployeeQualificationMapDTO job);
     }
 
     public class JobQualificationService : IJobQualificationService
@@ -24,21 +24,67 @@ namespace CinemaBL
             _mp = mp;
         }
 
-        public void CreateNewJob(CinemaDTO.JobDTO job)
+        public void CreateNewJob(CinemaDTO.JobEmployeeQualificationMinimalDTO job)
         {
-            JobQualification j = new JobQualification();
-            j.Description = job.Description;
-            j.ShortDescr = job.ShortDescr;
-
-            _ctx.JobQualifications.Add(j);
+            _ctx.JobEmployeeQualifications.Add(
+                new JobEmployeeQualification()
+                {
+                    Description = job.Description,
+                    ShortDescr = job.ShortDescr
+                });
         }
 
-        public List<string> GetJobQualifications()
+        public bool DeleteJobEmployeeQualification(int idJobEmp)
         {
-            var jq = _ctx.JobQualifications.Select(x => x.Description).ToList();
+            //_ctx.JobEmployeeQualifications.Remove(_ctx.JobEmployeeQualifications.Where(x => x.Id == idJobEmp).);
+            //_ctx.Entry(new JobEmployeeQualification() { Id = idJobEmp }).State = EntityState.Deleted;            
+
+            var j = _ctx.JobEmployeeQualifications.Where(x => x.Id == idJobEmp);
+
+            if (j is null || j.Count() == 0)
+            {
+                // not found
+                return false;
+            }
+
+            _ctx.Entry(j.First()).State = EntityState.Deleted;
+            return true;
+        }
+
+        public IEnumerable<CinemaDTO.JobEmployeeQualificationMapDTO> GetJobQualifications()
+        {
             //var dtoJQ = _mp.Map<List<JobQualificationDTO>>(jq);
 
-            return jq;
+            int i = _ctx.JobEmployeeQualifications.Count();
+
+            var ll = _ctx.JobEmployeeQualifications.Select(x => new JobEmployeeQualificationMapDTO()
+            {
+                Description = x.Description,
+                Id = x.Id,
+                ShortDescr = x.ShortDescr
+            });
+
+
+            return ll;
+        }
+
+        public bool UpdateJobEmployeeQualification(JobEmployeeQualificationMapDTO job)
+        {
+            var j = _ctx.JobEmployeeQualifications.Where(x => x.Id == job.Id);
+
+            if (j is null || j.Count() == 0)
+            {
+                // not found
+                return false;
+            }
+
+            j.ToList().ForEach(x =>
+            {
+                x.Description = job.Description;
+                x.ShortDescr = job.ShortDescr;
+            });
+
+            return true;
         }
     }
 }

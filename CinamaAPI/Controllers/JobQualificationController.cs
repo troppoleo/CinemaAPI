@@ -17,11 +17,11 @@ namespace CinemaAPI.Controllers
         }
 
 
-        [HttpGet(Name = "GetJobQualification")]
-        public IEnumerable<string> GetJobQualifications()
-        { 
-            return _jqs.GetJobQualifications();
-        }
+        //[HttpGet(Name = "GetJobQualification")]
+        //public IEnumerable<string> GetJobQualifications()
+        //{ 
+        //    return _jqs.GetJobQualifications();
+        //}
 
     }
 }

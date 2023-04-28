@@ -10,7 +10,7 @@ namespace CinemaBL.Mapper
 
         public MngJobQualifications()
         {
-            CreateMap<CinemaDAL.Models.JobQualification, JobQualificationDTO>()
+            CreateMap<CinemaDAL.Models.JobQualification, JobEmployeeQualificationMapRefDTO>()
                 .ForMember(
                 dest => dest.Description,
                 opt => opt.MapFrom(src => $"{src.Description}"))

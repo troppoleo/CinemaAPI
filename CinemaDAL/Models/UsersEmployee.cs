@@ -19,5 +19,5 @@ public partial class UsersEmployee
 
     public DateTime Birthdate { get; set; }
 
-    public virtual JobQualification JobQualification { get; set; } = null!;
+    public virtual JobEmployeeQualification JobQualification { get; set; } = null!;
 }
