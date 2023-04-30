@@ -1,3 +1,4 @@
+using CinemaBL;
 using CinemaDAL.Models;
 using System.Diagnostics;
 
@@ -6,6 +7,15 @@ namespace TestProject1
     public class Tests
     {
         private CinemaContext _ctx;
+        private readonly JobQualificationService _jb;
+        private readonly CinemaRoomService _crs;
+
+        public Tests(CinemaContext ctx, CinemaBL.JobQualificationService jb, CinemaBL.CinemaRoomService crs)
+        {
+            _ctx = ctx;
+            _jb = jb;
+            _crs  = crs;
+        }
 
         [SetUp]
         public void Setup()
@@ -15,17 +25,26 @@ namespace TestProject1
 
         //[TestCase(1,1,1]
         // per passare parametri ai test
-        
+
         [Test]
         public void GetCinemaRooms_CheckConter_ReturnTrue()
         {
 
-            var cr = new CinemaBL.CinemaRoomService(_ctx);
-            var ll = cr.GetCinemaRooms();
+            //var cr = new CinemaBL.CinemaRoomService(_ctx);
+            var ll = _crs.GetCinemaRooms();
 
             Assert.IsTrue(ll.Count == 0);
             Assert.IsNotNull(ll);
             Assert.IsTrue(ll.Count > 0);
+
+        }
+
+        [Test]
+        public void GetJobEmployeeQualification()
+        {
+            //CinemaBL.JobQualificationService bl = new CinemaBL.JobQualificationService(_ctx);
+
+            Assert.IsTrue(_jb.GetJobQualifications().Count() > 0);
 
         }
 

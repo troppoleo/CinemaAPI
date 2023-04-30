@@ -2,19 +2,31 @@
 using CinemaDAL.Models;
 using CinemaDTO;
 using Microsoft.EntityFrameworkCore;
+using static CinemaBL.JobQualificationService;
 
 namespace CinemaBL
 {
     public interface IJobQualificationService
     {
-        void CreateNewJob(JobEmployeeQualificationMinimalDTO job);
-        bool DeleteJobEmployeeQualification(int idJobEmp);
+        JobQualificationServiceEnum CreateNewJob(JobEmployeeQualificationMinimalDTO job);
+        JobQualificationServiceEnum DeleteJobEmployeeQualification(int idJobEmp);
         IEnumerable<JobEmployeeQualificationMapDTO> GetJobQualifications();
-        bool UpdateJobEmployeeQualification(JobEmployeeQualificationMapDTO job);
+        JobQualificationServiceEnum UpdateJobEmployeeQualification(JobEmployeeQualificationMapDTO job);
     }
 
     public class JobQualificationService : IJobQualificationService
     {
+        public enum JobQualificationServiceEnum
+        {
+            CREATED,
+            DELETED,
+            UPDATED,
+            ALREADY_EXISTS,
+            NOT_FOUND,
+            NOT_REMOVABLE_BECAUSE_HAS_EMPLOY,
+            NOT_UPDATABLE_BECAUSE_SHORTDESCR_ALREAY_EXISTS
+        }
+
         private readonly CinemaContext _ctx;
         private readonly IMapper _mp;
 
@@ -24,35 +36,63 @@ namespace CinemaBL
             _mp = mp;
         }
 
-        public void CreateNewJob(CinemaDTO.JobEmployeeQualificationMinimalDTO job)
+        public JobQualificationServiceEnum CreateNewJob(CinemaDTO.JobEmployeeQualificationMinimalDTO job)
         {
+            if (_ctx.JobEmployeeQualifications.Any(x => x.ShortDescr == job.ShortDescr))
+            {
+                return JobQualificationServiceEnum.ALREADY_EXISTS;
+            }
+
             _ctx.JobEmployeeQualifications.Add(
                 new JobEmployeeQualification()
                 {
                     Description = job.Description,
                     ShortDescr = job.ShortDescr
                 });
+            return JobQualificationServiceEnum.CREATED;
         }
 
-        public bool DeleteJobEmployeeQualification(int idJobEmp)
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="idJobEmp"></param>
+        /// <returns></returns>
+        public JobQualificationServiceEnum DeleteJobEmployeeQualification(int idJobEmp)
         {
+            /// COSA FA:
+            /// cerco la qualifica
+            /// verifico se l'ID fornito esiste
+            /// controllo se ha degli impiegati associati ed eventualmente non può essere cancellata
+            /// passa tutti i controlli posso cancellare il Job
+
             //_ctx.JobEmployeeQualifications.Remove(_ctx.JobEmployeeQualifications.Where(x => x.Id == idJobEmp).);
             //_ctx.Entry(new JobEmployeeQualification() { Id = idJobEmp }).State = EntityState.Deleted;            
 
-            var j = _ctx.JobEmployeeQualifications.Where(x => x.Id == idJobEmp);
+            var j = _ctx.JobEmployeeQualifications.Where(x => x.Id == idJobEmp).FirstOrDefault();
 
-            if (j is null || j.Count() == 0)
+            if (j is null)
             {
-                // not found
-                return false;
+                return JobQualificationServiceEnum.NOT_FOUND;
             }
 
-            _ctx.Entry(j.First()).State = EntityState.Deleted;
-            return true;
+            /// Non può essere né eliminata né modificata una qualifica se ha anche solo un EMPLOYEE associato 
+            if (_ctx.UsersEmployees.Any(x => x.Id == j.Id))
+            {
+                return JobQualificationServiceEnum.NOT_REMOVABLE_BECAUSE_HAS_EMPLOY;
+            }
+
+            _ctx.Entry(j).State = EntityState.Deleted;
+            return JobQualificationServiceEnum.DELETED;
         }
 
         public IEnumerable<CinemaDTO.JobEmployeeQualificationMapDTO> GetJobQualifications()
         {
+            /// COSA FA
+            /// restituisce la lista delle possibile qualifiche per gli Employe
+
+
             //var dtoJQ = _mp.Map<List<JobQualificationDTO>>(jq);
 
             int i = _ctx.JobEmployeeQualifications.Count();
@@ -68,23 +108,35 @@ namespace CinemaBL
             return ll;
         }
 
-        public bool UpdateJobEmployeeQualification(JobEmployeeQualificationMapDTO job)
+        public JobQualificationServiceEnum UpdateJobEmployeeQualification(JobEmployeeQualificationMapDTO job)
         {
-            var j = _ctx.JobEmployeeQualifications.Where(x => x.Id == job.Id);
+            /// COSA FA
+            /// controllo l'esistenza del Job
+            /// controllo che il nuovo Job Short Description non sia stato già censito
+            /// se passo i controlli
+            /// aggiorno i dati
+            var j = _ctx.JobEmployeeQualifications.Where(x => x.Id == job.Id).FirstOrDefault();
 
-            if (j is null || j.Count() == 0)
+            if (j is null)
             {
-                // not found
-                return false;
+                return JobQualificationServiceEnum.NOT_FOUND;
             }
 
-            j.ToList().ForEach(x =>
+            if (_ctx.JobEmployeeQualifications.Any(x => x.ShortDescr == job.ShortDescr))
             {
-                x.Description = job.Description;
-                x.ShortDescr = job.ShortDescr;
-            });
+                return JobQualificationServiceEnum.NOT_UPDATABLE_BECAUSE_SHORTDESCR_ALREAY_EXISTS;
+            }
 
-            return true;
+            j.Description = job.Description;
+            j.ShortDescr = job.ShortDescr;
+
+            //j.ToList().ForEach(x =>
+            //{
+            //    x.Description = job.Description;
+            //    x.ShortDescr = job.ShortDescr;
+            //});
+
+            return JobQualificationServiceEnum.UPDATED;
         }
     }
 }

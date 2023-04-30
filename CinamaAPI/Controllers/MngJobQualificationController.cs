@@ -18,6 +18,10 @@ namespace CinemaAPI.Controllers
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>Restituisce la lista delle varie qualifiche (responsabile sala, bigliettaio) per gli EMPLOYEE </returns>
         [AllowAnonymous]
         [HttpGet(Name = "JobEmployeeQualification")]
         public ActionResult<IEnumerable<CinemaDTO.JobEmployeeQualificationMapDTO>> JobEmployeeQualification()
@@ -28,36 +32,53 @@ namespace CinemaAPI.Controllers
 
         /// <summary>
         /// crea un nuono lavoro per i soli dipendenti
+        /// Le qualifiche devono essere univoche (non ci possono essere 2 qualifiche “Responsabile di sala” per es.) 
         /// create new employ
         /// </summary>
         /// <param name="job"></param>
         /// <returns></returns>        
         [HttpPost("CreateNewJob"), Authorize(Roles = "ADMIN")]
-        public IActionResult CreateNewJob([FromBody] CinemaDTO.JobEmployeeQualificationMinimalDTO job)
+        public ActionResult<string> CreateNewJob([FromBody] CinemaDTO.JobEmployeeQualificationMinimalDTO job)
         {
-            if (job.Description == null || job.ShortDescr == null)
+            //if (job.Description == null || job.ShortDescr == null)
+            //{
+            //    return BadRequest();
+            //}
+
+            var r = _jqs.CreateNewJob(job);
+            switch (r)
             {
-                return BadRequest();
+                case JobQualificationService.JobQualificationServiceEnum.CREATED:
+                case JobQualificationService.JobQualificationServiceEnum.ALREADY_EXISTS:
+                    return Ok(r.ToString());
+                default:
+                    return NotFound(r.ToString());
             }
-            _jqs.CreateNewJob(job);
-            return Ok();
+
         }
 
 
         [HttpPatch, Authorize(Roles = "ADMIN")]
-        public ActionResult UpdateJobEmployeeQualification([FromBody] CinemaDTO.JobEmployeeQualificationMapDTO job)
-        {            
-            if (_jqs.UpdateJobEmployeeQualification(job))
-            {
-                return Ok();
-            }
-            return NotFound();            
+        public ActionResult<string> UpdateJobEmployeeQualification([FromBody] CinemaDTO.JobEmployeeQualificationMapDTO job)
+        {
+            var r = _jqs.UpdateJobEmployeeQualification(job);
+            return Ok(r.ToString());
         }
 
-        [HttpDelete, Authorize(Roles = "ADMIN")]
-        public ActionResult DeleteJobEmployeeQualification([FromQuery] int idJobEmp)
+        [HttpDelete(Name = "DeleteJobEmployeeQualification"), Authorize(Roles = "ADMIN")]
+        public ActionResult<string> DeleteJobEmployeeQualification([FromQuery] int idJobEmp)
         {
-            return _jqs.DeleteJobEmployeeQualification(idJobEmp) ? Ok() : NotFound();
+            var r = _jqs.DeleteJobEmployeeQualification(idJobEmp);
+            switch (r)
+            {
+                case JobQualificationService.JobQualificationServiceEnum.DELETED:
+                    return Ok(r.ToString());
+                case JobQualificationService.JobQualificationServiceEnum.NOT_FOUND:
+                    return NotFound(r.ToString());
+                default:
+                    return BadRequest(r.ToString());
+            }
+
         }
 
     }
