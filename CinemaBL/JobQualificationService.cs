@@ -16,7 +16,7 @@ namespace CinemaBL
 
     public class JobQualificationService : IJobQualificationService
     {
-        public enum JobQualificationServiceEnum
+        public enum JobQualificationServiceEnum 
         {
             CREATED,
             DELETED,
@@ -78,7 +78,7 @@ namespace CinemaBL
             }
 
             /// Non può essere né eliminata né modificata una qualifica se ha anche solo un EMPLOYEE associato 
-            if (_ctx.UsersEmployees.Any(x => x.Id == j.Id))
+            if (_ctx.UsersEmployees.Any(x => x.JobQualificationId == j.Id))
             {
                 return JobQualificationServiceEnum.NOT_REMOVABLE_BECAUSE_HAS_EMPLOY;
             }
@@ -95,8 +95,7 @@ namespace CinemaBL
 
             //var dtoJQ = _mp.Map<List<JobQualificationDTO>>(jq);
 
-            int i = _ctx.JobEmployeeQualifications.Count();
-
+            
             var ll = _ctx.JobEmployeeQualifications.Select(x => new JobEmployeeQualificationMapDTO()
             {
                 Description = x.Description,
@@ -135,6 +134,8 @@ namespace CinemaBL
             //    x.Description = job.Description;
             //    x.ShortDescr = job.ShortDescr;
             //});
+
+            _ctx.Entry(j).State = EntityState.Modified;
 
             return JobQualificationServiceEnum.UPDATED;
         }

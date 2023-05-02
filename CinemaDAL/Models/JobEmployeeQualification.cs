@@ -16,5 +16,10 @@ public partial class JobEmployeeQualification
 
     public string Description { get; set; } = null!;
 
+    /// <summary>
+    /// Numero minimo richiesto di Employee
+    /// </summary>
+    public int? MinimumRequired { get; set; }
+
     public virtual ICollection<UsersEmployee> UsersEmployees { get; set; } = new List<UsersEmployee>();
 }

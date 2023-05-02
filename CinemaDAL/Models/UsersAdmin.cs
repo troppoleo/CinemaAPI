@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace CinemaDAL.Models;
 
+/// <summary>
+/// Specifica per gli amministratori
+/// </summary>
 public partial class UsersAdmin
 {
     public int Id { get; set; }

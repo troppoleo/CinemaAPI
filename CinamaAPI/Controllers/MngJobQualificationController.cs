@@ -6,6 +6,9 @@ using System.Runtime.CompilerServices;
 
 namespace CinemaAPI.Controllers
 {
+    /// <summary>
+    /// interagisce con la tabella: "JobEmployeeQualifications"
+    /// </summary>
     [Route("[controller]/[action]")]
     [ApiController]
     public class MngJobQualificationController : ControllerBase

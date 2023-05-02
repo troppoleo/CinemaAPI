@@ -37,7 +37,7 @@ public partial class CinemaContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__CinemaRo__3214EC07D65C7C8B");
 
-            entity.ToTable("CinemaRoom");
+            entity.ToTable("CinemaRoom", tb => tb.HasComment("tabelle delle \"sale cinema\", utile per associare un employee alle sale cinema"));
 
             entity.Property(e => e.Name)
                 .HasMaxLength(50)
@@ -55,6 +55,9 @@ public partial class CinemaContext : DbContext
                 .HasMaxLength(250)
                 .IsUnicode(false)
                 .HasColumnName("description");
+            entity.Property(e => e.MinimumRequired)
+                .HasComment("Numero minimo richiesto di Employee")
+                .HasColumnName("minimum_required");
             entity.Property(e => e.ShortDescr)
                 .HasMaxLength(20)
                 .IsUnicode(false)
@@ -65,9 +68,9 @@ public partial class CinemaContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__Projecti__3214EC07FD868ADB");
 
-            entity.ToTable("Projection");
+            entity.ToTable("Projection", tb => tb.HasComment("contiene la programmazione delle proiezioni e l'associazione della sala cinema"));
 
-            entity.Property(e => e.CinemaRoomId).HasColumnName("cinemaRoomID");
+            entity.Property(e => e.CinemaRoomId).HasColumnName("cinemaRoomId");
             entity.Property(e => e.EndShow)
                 .HasColumnType("numeric(18, 0)")
                 .HasColumnName("end_show");
@@ -88,7 +91,7 @@ public partial class CinemaContext : DbContext
         {
             entity
                 .HasNoKey()
-                .ToTable(tb => tb.HasComment("tabella con i vari ruoli \r\nADMIN\r\nEMPLOYEE\r\nCUSTOMER\r\n"));
+                .ToTable(tb => tb.HasComment("tabella con i vari ruoli:\r\nADMIN, EMPLOYEE, CUSTOMER\r\n"));
 
             entity.Property(e => e.Description)
                 .HasMaxLength(150)
@@ -108,7 +111,7 @@ public partial class CinemaContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__UsersAdm__3214EC07027A5AF9");
 
-            entity.ToTable("UsersAdmin");
+            entity.ToTable("UsersAdmin", tb => tb.HasComment("Specifica per gli amministratori"));
 
             entity.Property(e => e.Name)
                 .HasMaxLength(50)
@@ -126,13 +129,17 @@ public partial class CinemaContext : DbContext
 
         modelBuilder.Entity<UsersEmployee>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__UsersEmp__3214EC075B506F21");
+            entity.HasKey(e => e.Id).HasName("PK__UsersEmp__3214EC071722E0AA");
 
-            entity.ToTable("UsersEmployee");
+            entity.ToTable("UsersEmployee", tb => tb.HasComment("specifica per i soli Employee (no admin)"));
 
             entity.Property(e => e.Birthdate)
                 .HasDefaultValueSql("([dbo].[GetMinDate]())")
                 .HasColumnType("date");
+            entity.Property(e => e.CinemaRoomId).HasColumnName("cinemaRoomId");
+            entity.Property(e => e.IsActive)
+                .HasComment("serve solo ai bilbiettai, per indicare se sono attivi o meno {null/0, 1 }")
+                .HasColumnName("isActive");
             entity.Property(e => e.JobQualificationId).HasColumnName("jobQualificationID");
             entity.Property(e => e.Name)
                 .HasMaxLength(50)
@@ -146,6 +153,10 @@ public partial class CinemaContext : DbContext
             entity.Property(e => e.UserName)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+
+            entity.HasOne(d => d.CinemaRoom).WithMany(p => p.UsersEmployees)
+                .HasForeignKey(d => d.CinemaRoomId)
+                .HasConstraintName("FK_UsersEmployee_CinemaRoom");
 
             entity.HasOne(d => d.JobQualification).WithMany(p => p.UsersEmployees)
                 .HasForeignKey(d => d.JobQualificationId)

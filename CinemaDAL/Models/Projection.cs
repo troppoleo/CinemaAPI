@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace CinemaDAL.Models;
 
+/// <summary>
+/// contiene la programmazione delle proiezioni e l&apos;associazione della sala cinema
+/// </summary>
 public partial class Projection
 {
     public int Id { get; set; }

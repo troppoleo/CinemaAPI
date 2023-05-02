@@ -4,10 +4,8 @@ using System.Collections.Generic;
 namespace CinemaDAL.Models;
 
 /// <summary>
-/// tabella con i vari ruoli 
-/// ADMIN
-/// EMPLOYEE
-/// CUSTOMER
+/// tabella con i vari ruoli:
+/// ADMIN, EMPLOYEE, CUSTOMER
 /// 
 /// </summary>
 public partial class UserType

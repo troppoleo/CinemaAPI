@@ -23,7 +23,7 @@ namespace CinemaDTO
 
     public class JobEmployeeQualificationMapRefDTO : JobEmployeeQualificationMapDTO
     {
-        public virtual ICollection<EmployeeDTO> Employees { get; set; } = new List<EmployeeDTO>();
+        public virtual ICollection<UsersEmployeeDTO> Employees { get; set; } = new List<UsersEmployeeDTO>();
     }
 
 }

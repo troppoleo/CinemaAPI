@@ -29,10 +29,10 @@ namespace CinemaAPI.Middleware
                     ctx.SaveChanges();
                     trans.Commit();
                 }
-                else
-                {
-                    trans.Rollback();
-                }
+                //else
+                //{
+                //    trans.Rollback();
+                //}
             }
             catch (Exception ex)
             {
