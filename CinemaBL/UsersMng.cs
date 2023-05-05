@@ -283,16 +283,16 @@ namespace CinemaBL
             {
                 return UsersMngEnum.NOT_FOUND;
             }
-
-            // posso eliminare l'utente se NON ha una sala associata
-            if (_ctx.CinemaRooms is null)
-            {                
+            
+            // posso eliminare l'utente se ne sono almeno altri 2 sulla stessa sala
+            if (_ctx.UsersEmployees.Count(x => x.CinemaRoomId == usr.CinemaRoomId) > 2)
+            {
                 _ctx.Entry(usr).State = EntityState.Deleted;
                 return UsersMngEnum.DELETED;
             }
 
-            // posso eliminare l'utente se ne sono almeno altri 2 sulla stessa sala
-            if (_ctx.UsersEmployees.Count(x => x.CinemaRoomId == usr.CinemaRoomId) > 2)
+            // posso eliminare l'utente se NON ha una sala associata
+            if (_ctx.CinemaRooms is null)
             {
                 _ctx.Entry(usr).State = EntityState.Deleted;
                 return UsersMngEnum.DELETED;

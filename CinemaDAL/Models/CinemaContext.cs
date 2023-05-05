@@ -19,6 +19,10 @@ public partial class CinemaContext : DbContext
 
     public virtual DbSet<JobEmployeeQualification> JobEmployeeQualifications { get; set; }
 
+    public virtual DbSet<Movie> Movies { get; set; }
+
+    public virtual DbSet<MovieSchedule> MovieSchedules { get; set; }
+
     public virtual DbSet<Projection> Projections { get; set; }
 
     public virtual DbSet<UserType> UserTypes { get; set; }
@@ -39,10 +43,29 @@ public partial class CinemaContext : DbContext
 
             entity.ToTable("CinemaRoom", tb => tb.HasComment("tabelle delle \"sale cinema\", utile per associare un employee alle sale cinema"));
 
-            entity.Property(e => e.Name)
+            entity.Property(e => e.MaxStdSeat)
+                .HasComment("Massimo numero di posto standard")
+                .HasColumnName("maxStdSeat");
+            entity.Property(e => e.MaxVipSeat)
+                .HasComment("massimo numero di posti VIP")
+                .HasColumnName("maxVipSeat");
+            entity.Property(e => e.RoomName)
                 .HasMaxLength(50)
                 .IsUnicode(false)
-                .HasColumnName("name");
+                .HasComment("Nome della sala")
+                .HasColumnName("roomName");
+            entity.Property(e => e.StdSeat)
+                .HasDefaultValueSql("((0))")
+                .HasComment("numero di posto standard assegnati")
+                .HasColumnName("stdSeat");
+            entity.Property(e => e.UpgradeVipPrice)
+                .HasComment("percentuale di maggiorazione del prezzo VIP rispetto al prezzo standard")
+                .HasColumnType("decimal(10, 10)")
+                .HasColumnName("upgradeVipPrice");
+            entity.Property(e => e.VipSeat)
+                .HasDefaultValueSql("((0))")
+                .HasComment("numero di posti VIP assegnati")
+                .HasColumnName("vipSeat");
         });
 
         modelBuilder.Entity<JobEmployeeQualification>(entity =>
@@ -62,6 +85,72 @@ public partial class CinemaContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .HasColumnName("short_descr");
+        });
+
+        modelBuilder.Entity<Movie>(entity =>
+        {
+            entity.ToTable("Movie", tb => tb.HasComment("elenco dei film"));
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Actors)
+                .HasMaxLength(500)
+                .IsUnicode(false)
+                .HasComment("lista degli attori principali")
+                .HasColumnName("actors");
+            entity.Property(e => e.Cover)
+                .HasMaxLength(250)
+                .HasComment("questo andrebbe fatto come \"image\" ma posso mettere anche l'url per ora mi semplifico la vita")
+                .HasColumnName("cover");
+            entity.Property(e => e.Director)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasComment("regista")
+                .HasColumnName("director");
+            entity.Property(e => e.Duration).HasColumnName("duration");
+            entity.Property(e => e.FilmName)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("filmName");
+            entity.Property(e => e.Genere)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("genere");
+            entity.Property(e => e.MoviePlot)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasComment("è la trama")
+                .HasColumnName("moviePlot");
+            entity.Property(e => e.ProductionYear).HasColumnName("productionYear");
+            entity.Property(e => e.Trama)
+                .HasMaxLength(500)
+                .IsUnicode(false)
+                .HasColumnName("trama");
+        });
+
+        modelBuilder.Entity<MovieSchedule>(entity =>
+        {
+            entity.HasKey(e => new { e.MovieId, e.CinemaRoomId }).HasName("PK_Person");
+
+            entity.ToTable("MovieSchedule", tb => tb.HasComment("mette in relazione i film con le sale cinematografiche, contiene:\r\n> data e ora di inizio \r\n> l'approvazione dell'ADMIN {1, 0}\r\n"));
+
+            entity.Property(e => e.MovieId).HasColumnName("movieId");
+            entity.Property(e => e.CinemaRoomId).HasColumnName("cinemaRoomId");
+            entity.Property(e => e.IsApproved)
+                .HasDefaultValueSql("((0))")
+                .HasComment("1 se è stato approvato dall'Admin")
+                .HasColumnName("isApproved");
+            entity.Property(e => e.StartDate)
+                .HasDefaultValueSql("([dbo].[GetMinDate]())")
+                .HasColumnType("datetime")
+                .HasColumnName("startDate");
+
+            entity.HasOne(d => d.CinemaRoom).WithMany(p => p.MovieSchedules)
+                .HasForeignKey(d => d.CinemaRoomId)
+                .HasConstraintName("FK_MovieSchedule_CinemaRoom");
+
+            entity.HasOne(d => d.Movie).WithMany(p => p.MovieSchedules)
+                .HasForeignKey(d => d.MovieId)
+                .HasConstraintName("FK_MovieSchedule_Movie");
         });
 
         modelBuilder.Entity<Projection>(entity =>

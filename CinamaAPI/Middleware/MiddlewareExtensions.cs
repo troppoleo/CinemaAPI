@@ -12,6 +12,12 @@
         {
             return builder.UseMiddleware<SaveChangeOnDB>();
         }
+
+        public static IApplicationBuilder MyCatchException(
+            this IApplicationBuilder builder)
+        {
+            return builder.UseMiddleware<CatchException>();
+        }
     }
 
 }

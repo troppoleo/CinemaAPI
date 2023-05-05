@@ -1,8 +1,11 @@
 using CinemaAPI.Middleware;
 using CinemaAPI.Tasks;
+using CinemaBL;
+using CinemaBL.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
 using System.Text;
 
@@ -20,22 +23,44 @@ builder.Services.AddTransient<CinemaBL.IJobQualificationService, CinemaBL.JobQua
 builder.Services.AddTransient<CinemaBL.ICinemaRoomService, CinemaBL.CinemaRoomService>();
 builder.Services.AddTransient<CinemaBL.ITokenMng, CinemaBL.TokenMng>();
 builder.Services.AddTransient<CinemaBL.IUsersMng, CinemaBL.UsersMng>();
+builder.Services.AddTransient<IMovieService, MovieService>();
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(
-    opt =>
+
+
+builder.Services.AddSwaggerGen(opt =>
+{
+    opt.SwaggerDoc("v1", new OpenApiInfo { Title = "MyAPI", Version = "v1" });
+    opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        opt.AddSecurityDefinition("aouth2", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-        {
-            Description = "Standarad authorization ",
-            In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-            Name = "authorization",
-            Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey
-        });
-        opt.OperationFilter<SecurityRequirementsOperationFilter>(); 
+        In = ParameterLocation.Header,
+        Description = "Please enter token",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "bearer"
     });
+    opt.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type=ReferenceType.SecurityScheme,
+                    Id="Bearer"
+                }
+            },
+            new string[]{}
+        }
+    });
+});
 
 
 // Registro il mio Periodic Background Task
@@ -88,6 +113,8 @@ app.MapControllers();
 
 // salvataggi a DB:
 app.MySaveChangeOnDB();
+// gestione delle eccezioni
+app.MyCatchException();
 
 
 app.Run();
