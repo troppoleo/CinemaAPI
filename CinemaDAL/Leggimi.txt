@@ -4,3 +4,8 @@ Scaffold-DbContext "Server=(localdb)\MSSQLLocalDB;database=Cinema;Trusted_Connec
 
 Aggiornamento del DB
 Scaffold-DbContext "Server=(localdb)\MSSQLLocalDB;database=Cinema;Trusted_Connection=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -force
+
+
+per il rilascio rimuovere:
+protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+che viene cmq rigenerato durante lo scafolding

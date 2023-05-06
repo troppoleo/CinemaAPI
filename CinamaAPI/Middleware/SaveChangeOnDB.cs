@@ -49,7 +49,7 @@ namespace CinemaAPI.Middleware
         //        // context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
         //        //await context.Response.WriteAsync(ex.ToString());
 
-        //        throw new Exception($"Error during _ctx.SaveChanges() nel middleware - Message: {ex.Message}", ex);
+        //        throw new Exception($"Error during Context.SaveChanges() nel middleware - Message: {ex.Message}", ex);
         //    }
         //    finally
         //    {
@@ -79,7 +79,7 @@ namespace CinemaAPI.Middleware
         //    }
         //    catch (Exception ex)
         //    {
-        //        throw new Exception($"Error during _ctx.SaveChanges() nel middleware - Message: {ex.Message}", ex);
+        //        throw new Exception($"Error during Context.SaveChanges() nel middleware - Message: {ex.Message}", ex);
         //    }
         //    finally
         //    {
@@ -96,7 +96,7 @@ namespace CinemaAPI.Middleware
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error during _ctx.SaveChanges() nel middleware - Message: {ex.Message}", ex);
+                throw new Exception($"Error during Context.SaveChanges() nel middleware - Message: {ex.Message}", ex);
             }
             finally
             {

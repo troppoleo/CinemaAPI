@@ -30,6 +30,8 @@ namespace CinemaBL.Repository
 
         private MovieRepository movieRepository;
         public IRepository<Movie> MovieRepository => movieRepository ??= new MovieRepository(_ctx);
+
+        // questo è equivalente:
         //public IRepository<Movie> MovieRepository
         //{
         //    get

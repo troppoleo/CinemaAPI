@@ -22,21 +22,35 @@ namespace CinemaAPI.Controllers
             return await _ms.GetAllMovie();
         }
 
-        //[HttpPost(Name = "CreateMovie")]
-        //public ActionResult<string> CreateMovie([FromBody] MovieDTO movie)
-        //{
-        //    var se = _ms.CreateMovie(movie);
 
-        //    return Ok(se.ToString());
-        //}
 
-        
-        //[HttpPatch(Name = "UpdateMovie")]
-        //public ActionResult<string> UpdateMovie(MovieDTO movie)
-        //{
-        //    var se = _ms.UpdateMovie(movie);
-        //    return Ok(se.ToString());
-        //}
+        [HttpPost(Name = "CreateMovieAsync")]
+        public async Task<ActionResult<string>> CreateMovieAsync([FromBody] MovieForAddDTO movie)
+        {
+            var se = await _ms.CreateMovieAsync(movie);
+
+            return Ok(se.ToString());
+        }
+
+
+        // [Route("~/CreateMovie2")]    --> "~" permette di cancellare tutto l'url 
+
+        [HttpPost]
+        [Route("CreateMovie2")]
+        public ActionResult<string> CreateMovie2([FromBody] MovieForAddDTO movie)
+        {
+            var se = _ms.CreateMovie(movie);
+
+            return Ok(se.ToString());
+        }
+
+        [HttpPatch]
+        [Route("UpdateMovie")]
+        public ActionResult<string> UpdateMovie(MovieDTO movie)
+        {
+            var se = _ms.UpdateMovie(movie);
+            return Ok(se.ToString());
+        }
 
     }
 }

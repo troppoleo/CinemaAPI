@@ -30,7 +30,7 @@ namespace TestProject1
         public void GetCinemaRooms_CheckConter_ReturnTrue()
         {
 
-            //var cr = new CinemaBL.CinemaRoomService(_ctx);
+            //var cr = new CinemaBL.CinemaRoomService(Context);
             var ll = _crs.GetCinemaRooms();
 
             Assert.IsTrue(ll.Count == 0);
@@ -42,7 +42,7 @@ namespace TestProject1
         [Test]
         public void GetJobEmployeeQualification()
         {
-            //CinemaBL.JobQualificationService bl = new CinemaBL.JobQualificationService(_ctx);
+            //CinemaBL.JobQualificationService bl = new CinemaBL.JobQualificationService(Context);
 
             Assert.IsTrue(_jb.GetJobQualifications().Count() > 0);
 
