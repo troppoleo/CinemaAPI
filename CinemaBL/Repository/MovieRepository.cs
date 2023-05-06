@@ -12,7 +12,7 @@ namespace CinemaBL.Repository
         
     }
     
-    public class MovieRepository : Repository<Movie>
+    public class MovieRepository : Repository<Movie>, IMovieRepository
     {
         public MovieRepository(CinemaContext ctx) : base(ctx)
         {

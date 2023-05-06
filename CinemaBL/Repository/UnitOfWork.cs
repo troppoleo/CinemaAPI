@@ -12,6 +12,8 @@ namespace CinemaBL.Repository
     public interface IUnitOfWork : IDisposable
     {
         IRepository<Movie> MovieRepository { get; }
+        IRepository<CinemaRoom> CinemaRoomRep { get; }
+
 
         IDbContextTransaction BeginTransaction();
         Task<bool> SaveChangesAsync();
@@ -31,6 +33,9 @@ namespace CinemaBL.Repository
         private MovieRepository movieRepository;
         public IRepository<Movie> MovieRepository => movieRepository ??= new MovieRepository(_ctx);
 
+        private CinemaRoomRepository roomRepository;
+        public IRepository<CinemaRoom> CinemaRoomRep => roomRepository ??= new CinemaRoomRepository(_ctx);
+
         // questo è equivalente:
         //public IRepository<Movie> MovieRepository
         //{
@@ -49,7 +54,7 @@ namespace CinemaBL.Repository
 
         public void Dispose()
         {
-            _ctx.Dispose(); 
+            _ctx.Dispose();
         }
 
         public IDbContextTransaction BeginTransaction()

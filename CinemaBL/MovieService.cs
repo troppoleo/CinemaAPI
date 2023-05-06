@@ -18,6 +18,7 @@ namespace CinemaBL
         MovieServiceEnum CreateMovie(MovieForAddDTO movie);
         Task<IEnumerable<MovieDTO>> GetAllMovie();
         MovieServiceEnum UpdateMovie(MovieDTO movie);
+        MovieServiceEnum DeleteMovie(int idMovie);
     }
 
 
@@ -47,7 +48,7 @@ namespace CinemaBL
 
         public async Task<IEnumerable<MovieDTO>> GetAllMovie()
         {
-            var x = await _uow.MovieRepository.GetAll();
+            var x = await _uow.MovieRepository.GetAllAsync();
 
             return x.Select(x =>
                 new MovieDTO()
@@ -179,8 +180,19 @@ namespace CinemaBL
             mv.Trama = movie.Trama;
 
             _uow.MovieRepository.Update(mv);
-
             return MovieServiceEnum.UPDATED;
+        }
+
+        public MovieServiceEnum DeleteMovie(int idMovie)
+        {
+            var mv = _uow.MovieRepository.Find(x => x.Id == idMovie);
+            if (mv is null)
+            {
+                return MovieServiceEnum.NOT_FOUND;
+            }
+
+            _uow.MovieRepository.Delete(mv);
+            return MovieServiceEnum.DELETED;
         }
     }
 }

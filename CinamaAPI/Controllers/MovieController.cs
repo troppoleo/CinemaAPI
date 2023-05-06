@@ -16,7 +16,8 @@ namespace CinemaAPI.Controllers
             _ms = ms;
         }
 
-        [HttpGet(Name = "GetAllMovie")]
+        [HttpGet]
+        [Route("GetAllMovie")]
         public async Task<IEnumerable<MovieDTO>> GetAllMovie()
         {
             return await _ms.GetAllMovie();
@@ -24,7 +25,8 @@ namespace CinemaAPI.Controllers
 
 
 
-        [HttpPost(Name = "CreateMovieAsync")]
+        [HttpPost]
+        [Route("CreateMovieAsync")]
         public async Task<ActionResult<string>> CreateMovieAsync([FromBody] MovieForAddDTO movie)
         {
             var se = await _ms.CreateMovieAsync(movie);
@@ -36,8 +38,8 @@ namespace CinemaAPI.Controllers
         // [Route("~/CreateMovie2")]    --> "~" permette di cancellare tutto l'url 
 
         [HttpPost]
-        [Route("CreateMovie2")]
-        public ActionResult<string> CreateMovie2([FromBody] MovieForAddDTO movie)
+        [Route("CreateMovie")]
+        public ActionResult<string> CreateMovie([FromBody] MovieForAddDTO movie)
         {
             var se = _ms.CreateMovie(movie);
 
@@ -49,6 +51,14 @@ namespace CinemaAPI.Controllers
         public ActionResult<string> UpdateMovie(MovieDTO movie)
         {
             var se = _ms.UpdateMovie(movie);
+            return Ok(se.ToString());
+        }
+
+        [HttpDelete]
+        [Route("DeleteMovie")]
+        public ActionResult<string> DeleteMovie(int idMovie)
+        {
+            var se = _ms.DeleteMovie(idMovie);
             return Ok(se.ToString());
         }
 

@@ -16,9 +16,10 @@ namespace CinemaAPI.Controllers
         }
 
         [HttpGet(Name = "GetCinemaRooms")]
-        public IEnumerable<CinemaDAL.Models.CinemaRoom> GetCinemaRooms()
+        public IEnumerable<CinemaDTO.CinemaRoomDTO> GetCinemaRooms()
         {
-            return _cr.GetCinemaRooms();
+            //return _cr.GetCinemaRooms();
+            return _cr.GetAll();
         }
 
         /// <summary>
@@ -27,30 +28,33 @@ namespace CinemaAPI.Controllers
         /// </summary>
         /// <param name="cc"></param>
         /// <returns></returns>
-        [HttpPost(Name = "CreateCinemaRoom")]
-        public ActionResult<string> CreateCinemaRoom(CinemaDTO.CreateCinemaDTO cc)
+        [HttpPost]
+        [Route("Add")]
+        public ActionResult<string> Add(CinemaDTO.CinemaRoomForAddDTO cc)
         {
-            return "";
+            return _cr.Add(cc).ToString();
         }
 
         /// <summary>
         /// Una sala NON può essere eliminata se c’è un film programmato in quella sala 
         /// Se viene eliminata, il Responsabile di Sala NON viene eliminato ma rimane “libero”  
         /// </summary>
-        [HttpDelete(Name = "DeleteCinemaRoom")]
-        public ActionResult<string> DeleteCinemaRoom([FromQuery] int id)
+        [HttpDelete]
+        [Route ("Delete/{id}")]
+        public ActionResult<string> Delete(int id)
         {
-            return "";
+            return _cr.Delete(id).ToString();
         }
 
 
         ///o	I posti, posti vip ecc, possono essere modificati solo quando non ci sono in programma film approvati 
         ///         in quella sala o Il numero e il nome (facoltativo) devono essere unici
         ///	Il numero può essere cambiato ma non può essere< 1 
-        [HttpPatch(Name = "UpdateCinemaRoom")]
-        public ActionResult<string> UpdateCinemaRoom([FromBody] CinemaDTO.CreateCinemaDTO cc)
+        [HttpPatch]
+        [Route("Update")]
+        public ActionResult<string> Update([FromBody] CinemaDTO.CinemaRoomDTO cc)
         {
-            return "";
+            return _cr.Update(cc).ToString();
         }
 
 

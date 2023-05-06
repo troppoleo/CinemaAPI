@@ -25,6 +25,7 @@ builder.Services.AddTransient<CinemaBL.ITokenMng, CinemaBL.TokenMng>();
 builder.Services.AddTransient<CinemaBL.IUsersMng, CinemaBL.UsersMng>();
 builder.Services.AddTransient<IMovieService, MovieService>();
 
+// UnitOfWork e Repository: query centralizzate nel repository:
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
@@ -33,7 +34,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
-
+// configurazione di Swagger per fare l'autenticazione
 builder.Services.AddSwaggerGen(opt =>
 {
     opt.SwaggerDoc("v1", new OpenApiInfo { Title = "MyAPI", Version = "v1" });
