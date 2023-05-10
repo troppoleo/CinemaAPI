@@ -15,12 +15,12 @@ namespace CinemaBL
     {
         //void AddMinimal(UsersEmployeeMinimalDTO eee);
 
-        CinemaEnum Update(UserEmployeeDTO ue);
+        CrudCinemaEnum Update(UserEmployeeDTO ue);
         //CinemaEnum AddMinimal(UsersEmployeeMinimalDTO ue);
         IEnumerable<UserEmployeeDTO>? GetAll();
         UserEmployeeDTO? Get(int id);
-        CinemaEnum Insert(UserEmployeeForInsertDTO ued);
-        CinemaEnum Delete(int id);
+        CrudCinemaEnum Insert(UserEmployeeForInsertDTO ued);
+        CrudCinemaEnum Delete(int id);
         //void Update(UsersEmployeeDTO ued);
     }
 
@@ -70,7 +70,7 @@ namespace CinemaBL
             };
         }
 
-        public CinemaEnum Delete(int id)
+        public CrudCinemaEnum Delete(int id)
         {
             var item = _uow.GetUserEmployeeRep.Get(x => x.Id == id).FirstOrDefault();
             if (item != null)
@@ -81,7 +81,7 @@ namespace CinemaBL
                     if (_uow.GetUserEmployeeRep.Get(x => x.JobQualificationId == item.JobQualificationId).Count() >= jobEmplQual.MinimumRequired.Value)
                     {
                         _uow.GetUserEmployeeRep.Delete(item);
-                        return CinemaEnum.DELETED;
+                        return CrudCinemaEnum.DELETED;
                     }
 
                     if (jobEmplQual is not null && jobEmplQual.Id == (int)JobEmployeeQualificationEnum.OWN_SALA)
@@ -89,17 +89,17 @@ namespace CinemaBL
                         if (!_uow.GetCinemaRoomCrossUserEmployeeRep.Get(x => x.UserEmployeeId == item.Id).Any())
                         {
                             _uow.GetUserEmployeeRep.Delete(item);
-                            return CinemaEnum.DELETED;
+                            return CrudCinemaEnum.DELETED;
                         }
                     }
 
-                    return CinemaEnum.VIOLATION_MINIMUM_REQUIRED;
+                    return CrudCinemaEnum.VIOLATION_MINIMUM_REQUIRED;
                 }
             }
-            return CinemaEnum.NOT_FOUND;
+            return CrudCinemaEnum.NOT_FOUND;
         }
 
-        public CinemaEnum Update(UserEmployeeDTO ue)
+        public CrudCinemaEnum Update(UserEmployeeDTO ue)
         {
             var item = _uow.GetUserEmployeeRep.Get(x => x.Id == ue.Id).FirstOrDefault();
 
@@ -118,7 +118,7 @@ namespace CinemaBL
                     if (_uow.GetUserEmployeeRep.Get(x => x.JobQualificationId == item.JobQualificationId).Count() >= jobEmplQual.MinimumRequired.Value)
                     {
                         _uow.GetUserEmployeeRep.Update(item);
-                        return CinemaEnum.UPDATED;
+                        return CrudCinemaEnum.UPDATED;
                     }
 
                     if (jobEmplQual is not null && jobEmplQual.Id == (int)JobEmployeeQualificationEnum.OWN_SALA)
@@ -126,18 +126,18 @@ namespace CinemaBL
                         if (!_uow.GetCinemaRoomCrossUserEmployeeRep.Get(x => x.UserEmployeeId == item.Id).Any())
                         {
                             _uow.GetUserEmployeeRep.Update(item);
-                            return CinemaEnum.UPDATED;
+                            return CrudCinemaEnum.UPDATED;
                         }
                     }
 
-                    return CinemaEnum.VIOLATION_MINIMUM_REQUIRED;
+                    return CrudCinemaEnum.VIOLATION_MINIMUM_REQUIRED;
                 }
             }
 
-            return CinemaEnum.NOT_FOUND;
+            return CrudCinemaEnum.NOT_FOUND;
         }
 
-        public CinemaEnum Insert(UserEmployeeForInsertDTO ued)
+        public CrudCinemaEnum Insert(UserEmployeeForInsertDTO ued)
         {
             var emp = _uow.GetUserEmployeeRep.Get(x => x.UserName.Trim().ToLower() == ued.UserName.Trim().ToLower());
             if (emp != null)
@@ -152,10 +152,10 @@ namespace CinemaBL
                     IsActive = ued.isActive
                 });
 
-                return CinemaEnum.CREATED;
+                return CrudCinemaEnum.CREATED;
             }
 
-            return CinemaEnum.ALREADY_EXISTS;
+            return CrudCinemaEnum.ALREADY_EXISTS;
         }
 
       

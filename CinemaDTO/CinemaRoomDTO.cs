@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace CinemaDTO
 {
     
-    public class CinemaRoomForAddDTO
+    public class CinemaRoomForInsertDTO
     {
         
 
@@ -43,7 +43,7 @@ namespace CinemaDTO
 
     }
 
-    public class CinemaRoomDTO : CinemaRoomForAddDTO
+    public class CinemaRoomDTO : CinemaRoomForInsertDTO
     {
         public int Id { get; set; }
     }

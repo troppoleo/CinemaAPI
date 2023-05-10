@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CinemaBL.Enums
 {
-    public enum CinemaEnum
+    public enum CrudCinemaEnum
     {
         CREATED,
         DELETED,
@@ -33,4 +33,29 @@ namespace CinemaBL.Enums
         /// </summary>
         OWN_SALA = 2
     }
+
+
+    /// <summary>
+    /// rappresenta i possibile valori della colonna: MOvieSchedule.status
+    /// </summary>
+    public enum MovieScheduleEnum
+    {
+        /// <summary>
+        /// deve ancora iniziare
+        /// </summary>
+        WAITING,
+        /// <summary>
+        /// è in corso di visione
+        /// </summary>
+        IN_PROGRESS,
+        /// <summary>
+        /// è finito e stanno facendo le pulizie
+        /// </summary>
+        CLEAN_TIME,
+        /// <summary>
+        /// finito e sala liberata, include i 10 min extra film
+        /// </summary>
+        DONE
+    }
+
 }

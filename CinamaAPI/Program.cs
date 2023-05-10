@@ -18,6 +18,8 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 // stringa di connessione:
 builder.Services.AddDbContext<CinemaDAL.Models.CinemaContext>(x => x.UseSqlServer(builder.Configuration.GetConnectionString("connSql")));
 
+
+
 // vari DI:
 builder.Services.AddTransient<IUserTypeService, UserTypeService>();
 builder.Services.AddTransient<IJobQualificationService, JobQualificationService>();
@@ -29,8 +31,8 @@ builder.Services.AddTransient<IUserEmployeeService, UserEmployeeService>();
 builder.Services.AddTransient<IJobEmployeeQualificationService, JobEmployeeQualificationService>();
 
 // UnitOfWork e Repository: query centralizzate nel repository:
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+//builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+//builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IUnitOfWorkGeneric, UnitOfWorkGeneric>();
 
 builder.Services.AddControllers();
@@ -68,7 +70,7 @@ builder.Services.AddSwaggerGen(opt =>
 
 
 // Registro il mio Periodic Background Task
-builder.Services.AddHostedService<ServiceDoCheck>();
+builder.Services.AddHostedService<ServiceSetStatusToDONE>();
 
 // added
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -107,6 +109,17 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+
+// Initialize the database
+//var scopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
+//using (var scope = scopeFactory.CreateScope())
+//{
+//    var db = scope.ServiceProvider.GetRequiredService<CinemaContext>();
+//    if (db.Database.EnsureCreated())
+//    {   
+//        //SeedData.Initialize(db);
+//    }
+//}
 
 // added: credo applichi quando scritto nel builder.Services.AddAuthentication
 app.UseAuthentication();

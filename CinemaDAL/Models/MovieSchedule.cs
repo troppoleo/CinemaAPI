@@ -32,6 +32,17 @@ public partial class MovieSchedule
 
     public decimal? VipPrice { get; set; }
 
+    /// <summary>
+    /// dominio:
+    /// WAITING --&gt; deve ancora iniziare
+    /// IN_PROGRESS --&gt; è in corso di visione
+    /// CLEAN_TIME --&gt; è finito e stanno facendo le pulizie
+    /// DONE --&gt; finito e sala liberata, include i 10 min extra film
+    /// 
+    /// utile per semplificare i filtri, aggiornata dal BGW
+    /// </summary>
+    public string? Status { get; set; }
+
     public virtual CinemaRoom CinemaRoom { get; set; } = null!;
 
     public virtual ICollection<CustomerCrossMovieSchedule> CustomerCrossMovieSchedules { get; set; } = new List<CustomerCrossMovieSchedule>();

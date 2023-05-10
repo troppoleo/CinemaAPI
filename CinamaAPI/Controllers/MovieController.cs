@@ -17,49 +17,36 @@ namespace CinemaAPI.Controllers
         }
 
         [HttpGet]
-        [Route("GetAllMovie")]
-        public async Task<IEnumerable<MovieDTO>> GetAllMovie()
+        [Route("GetAll")]
+        public IEnumerable<MovieDTO> GetAll()
         {
-            return await _ms.GetAllMovie();
+            return _ms.GetAll();
         }
 
 
-
-        [HttpPost]
-        [Route("CreateMovieAsync")]
-        public async Task<ActionResult<string>> CreateMovieAsync([FromBody] MovieForAddDTO movie)
-        {
-            var se = await _ms.CreateMovieAsync(movie);
-
-            return Ok(se.ToString());
-        }
 
 
         // [Route("~/CreateMovie2")]    --> "~" permette di cancellare tutto l'url 
 
         [HttpPost]
         [Route("CreateMovie")]
-        public ActionResult<string> CreateMovie([FromBody] MovieForAddDTO movie)
-        {
-            var se = _ms.CreateMovie(movie);
-
-            return Ok(se.ToString());
+        public IActionResult  CreateMovie([FromBody] MovieForAddDTO movie)
+        {            
+            return Ok(_ms.Insert(movie).ToString());
         }
 
         [HttpPatch]
         [Route("UpdateMovie")]
         public ActionResult<string> UpdateMovie(MovieDTO movie)
-        {
-            var se = _ms.UpdateMovie(movie);
-            return Ok(se.ToString());
+        {            
+            return Ok(_ms.Update(movie).ToString());
         }
 
         [HttpDelete]
-        [Route("DeleteMovie")]
-        public ActionResult<string> DeleteMovie(int idMovie)
-        {
-            var se = _ms.DeleteMovie(idMovie);
-            return Ok(se.ToString());
+        [Route("Delete")]
+        public ActionResult<string> Delete(int idMovie)
+        {            
+            return Ok(_ms.Delete(idMovie).ToString());
         }
 
     }

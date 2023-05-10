@@ -1,9 +1,11 @@
-﻿using CinemaBL.Repository;
+﻿using CinemaBL.Enums;
+using CinemaBL.Repository;
 using CinemaDAL.Models;
 using CinemaDTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using static CinemaBL.CinemaRoomService;
@@ -12,58 +14,41 @@ namespace CinemaBL
 {
     public interface ICinemaRoomService
     {
-        CinemaRoomEnum Add(CinemaRoomForAddDTO cRoom);
-        CinemaRoomEnum Delete(int idCinemaRoom);
+        CrudCinemaEnum Delete(int idCinemaRoom);
         IEnumerable<CinemaRoomDTO> GetAll();
-        IEnumerable<CinemaRoomDTO> GetAllWhere(string roomName);
-        CinemaRoomEnum Update(CinemaRoomDTO cRoom);
+        CinemaRoomDTO? GetByID(int id);
+        CrudCinemaEnum Insert(CinemaRoomForInsertDTO cRoom);
+        CrudCinemaEnum Update(CinemaRoomDTO cRoom);
     }
+
 
     public class CinemaRoomService : ICinemaRoomService
     {
-        private readonly IUnitOfWork _uow;
-
-        //private readonly CinemaContext _ctx;
-
-        //public CinemaRoomService(CinemaDAL.Models.CinemaContext ctx)
-        //{
-        //    _ctx = ctx;
-        //}
+        private readonly IUnitOfWorkGeneric _uow;
 
 
-        public CinemaRoomService(IUnitOfWork uow)
+        public CinemaRoomService(IUnitOfWorkGeneric uow)
         {
             _uow = uow;
         }
 
 
 
-        public enum CinemaRoomEnum
-        {
-            CREATED,
-            DELETED,
-            INSERTED,
-            UPDATED,
-            ALREADY_EXISTS,
-            NONE,
-            NOT_FOUND,
-            /// <summary>
-            /// violazione di un requisito minimo
-            /// </summary>
-            VIOLATION_MINIMUM_REQUIRED
-        }
-
         public IEnumerable<CinemaRoomDTO> GetAll()
         {
-            //return _ctx.CinemaRooms.ToList();
-
-            return _uow.CinemaRoomRep.GetAll().Select(r => FillProperty(r));
+            return _uow.GetCinemaRoomRep.Get().Select(r => FillProperty(r));
         }
 
 
-        public IEnumerable<CinemaRoomDTO> GetAllWhere(string roomName)
+        public CinemaRoomDTO? GetByID(int id)
         {
-            return _uow.CinemaRoomRep.GetAllWhere(x => x.RoomName == roomName).Select(r => FillProperty(r));
+            var xx = _uow.GetCinemaRoomRep.GetByID(id);
+            if (xx == null)
+            {
+                return null;
+            }
+
+            return FillProperty(xx);
         }
 
         private static CinemaRoomDTO FillProperty(CinemaRoom r)
@@ -80,9 +65,9 @@ namespace CinemaBL
             };
         }
 
-        public CinemaRoomEnum Add(CinemaRoomForAddDTO cRoom)
+        public CrudCinemaEnum Insert(CinemaRoomForInsertDTO cRoom)
         {
-            if (_uow.CinemaRoomRep.Find(x => x.RoomName == cRoom.RoomName) == null)
+            if (_uow.GetCinemaRoomRep.Get(x => x.RoomName == cRoom.RoomName) == null)
             {
                 CinemaRoom cr = new CinemaRoom()
                 {
@@ -94,19 +79,19 @@ namespace CinemaBL
                     VipSeat = cRoom.VipSeat
                 };
 
-                _uow.CinemaRoomRep.Add(cr);
-                return CinemaRoomEnum.CREATED;
+                _uow.GetCinemaRoomRep.Insert(cr);
+                return CrudCinemaEnum.CREATED;
             }
 
-            return CinemaRoomEnum.ALREADY_EXISTS;
+            return CrudCinemaEnum.ALREADY_EXISTS;
         }
 
-        public CinemaRoomEnum Update(CinemaRoomDTO cRoom)
+        public CrudCinemaEnum Update(CinemaRoomDTO cRoom)
         {
-            var cr = _uow.CinemaRoomRep.Find(x => x.Id == cRoom.Id);
+            var cr = _uow.GetCinemaRoomRep.GetByID(cRoom.Id);
             if (cr is null)
             {
-                return CinemaRoomEnum.NOT_FOUND;
+                return CrudCinemaEnum.NOT_FOUND;
             }
 
             cr.MaxStdSeat = cRoom.MaxStdSeat;
@@ -116,24 +101,44 @@ namespace CinemaBL
             cr.UpgradeVipPrice = cRoom.UpgradeVipPrice;
             cr.VipSeat = cRoom.VipSeat;
 
-
-            _uow.CinemaRoomRep.Update(cr);
-            return CinemaRoomEnum.UPDATED;
+            _uow.GetCinemaRoomRep.Update(cr);
+            return CrudCinemaEnum.UPDATED;
         }
 
 
-        public CinemaRoomEnum Delete(int idCinemaRoom)
+        public CrudCinemaEnum Delete(int idCinemaRoom)
         {
-            var cr = _uow.CinemaRoomRep.Find(x => x.Id == idCinemaRoom);
+            
+            var cr = _uow.GetCinemaRoomRep.GetByID(idCinemaRoom);
             if (cr is null)
             {
-                return CinemaRoomEnum.NOT_FOUND;
+                return CrudCinemaEnum.NOT_FOUND;
             }
 
-            _uow.CinemaRoomRep.Delete(cr);
-            return CinemaRoomEnum.DELETED;
+            ///	Una sala NON può essere eliminata se c’è un film programmato in quella sala 
+            if (_uow.GetMovieScheduleRep.GetByID(idCinemaRoom).Status != MovieScheduleEnum.DONE.ToString())
+            {
+                return CrudCinemaEnum.VIOLATION_MINIMUM_REQUIRED;
+            }
+
+            
+
+            _uow.GetCinemaRoomRep.Delete(cr);
+            return CrudCinemaEnum.DELETED;
         }
 
+        private bool CheckStatusIsDone(string status)
+        {
+            Enum.TryParse<MovieScheduleEnum>(status, true, out MovieScheduleEnum st);
+
+            switch (st)
+            {
+                case MovieScheduleEnum.DONE:
+                    return true;
+                default:
+                    return false;
+            }
+        }
     }
 
 

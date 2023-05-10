@@ -1,4 +1,5 @@
-﻿using CinemaBL.Repository;
+﻿using CinemaBL.Enums;
+using CinemaBL.Repository;
 using CinemaDAL.Models;
 using CinemaDTO;
 using Microsoft.EntityFrameworkCore;
@@ -9,135 +10,112 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static CinemaBL.MovieService;
+using CinemaBL.Extension;
 
 namespace CinemaBL
 {
     public interface IMovieService
     {
-        Task<MovieServiceEnum> CreateMovieAsync(MovieForAddDTO movie);
-        MovieServiceEnum CreateMovie(MovieForAddDTO movie);
-        Task<IEnumerable<MovieDTO>> GetAllMovie();
-        MovieServiceEnum UpdateMovie(MovieDTO movie);
-        MovieServiceEnum DeleteMovie(int idMovie);
+        //MovieServiceEnum CreateMovie(MovieForAddDTO movie);
+        IEnumerable<MovieDTO> GetAll();
+        MovieDTO? GetById(int id);
+        CrudCinemaEnum Delete(int idMovie);
+        CrudCinemaEnum Insert(MovieForAddDTO movie);
+        CrudCinemaEnum Update(MovieDTO movie);
     }
+
 
 
     public class MovieService : IMovieService
     {
-        private readonly IUnitOfWork _uow;
+        private readonly IUnitOfWorkGeneric _uow;
 
-        public MovieService(IUnitOfWork uow)
+        public MovieService(IUnitOfWorkGeneric uow)
         {
             _uow = uow;
         }
 
-        public enum MovieServiceEnum
+        public IEnumerable<MovieDTO> GetAll()
         {
-            CREATED,
-            DELETED,
-            INSERTED,
-            UPDATED,
-            ALREADY_EXISTS,
-            NONE,
-            NOT_FOUND,
-            /// <summary>
-            /// violazione di un requisito minimo
-            /// </summary>
-            VIOLATION_MINIMUM_REQUIRED
-        }
-
-        public async Task<IEnumerable<MovieDTO>> GetAllMovie()
-        {
-            var x = await _uow.MovieRepository.GetAllAsync();
+            var x = _uow.GetMovieRep.Get();
 
             return x.Select(x =>
                 new MovieDTO()
                 {
-                    Actors = x.Actors,
-                    Cover = x.Cover,
-                    Director = x.Director,
-                    Duration = x.Duration.Value,
-                    FilmName = x.FilmName,
-                    Genere = x.Genere,
+                    Actors = x.Actors.ToDefault(),
+                    Cover = x.Cover.ToDefault(),
+                    Director = x.Director.ToDefault(),
+                    Duration = x.Duration.ToDefault(),
+                    FilmName = x.FilmName.ToDefault(),
+                    Genere = x.Genere.ToDefault(),
                     ID = x.Id,
-                    MoviePlot = x.MoviePlot,
-                    ProductionYear = x.ProductionYear.Value,
-                    Trama = x.Trama
+                    MoviePlot = x.MoviePlot.ToDefault(),
+                    ProductionYear = x.ProductionYear.ToDefault(),
+                    Trama = x.Trama.ToDefault()
                 });
         }
 
 
-        public async Task<MovieServiceEnum> CreateMovieAsync(MovieForAddDTO movie)
+        public CrudCinemaEnum Insert(MovieForAddDTO movie)
         {
-            try
+            var mv = _uow.GetMovieRep.Get(x => x.FilmName == movie.FilmName);
+            if (mv == null)
             {
-                var mv = await _uow.MovieRepository.FindAsync(x => x.FilmName == movie.FilmName);
-                if (mv == null)
+                _uow.GetMovieRep.Insert(new Movie()
                 {
-                    _uow.MovieRepository.Add(new Movie()
-                    {
-                        Actors = movie.Actors,
-                        Cover = movie.Cover,
-                        Director = movie.Director,
-                        Duration = movie.Duration,
-                        FilmName = movie.FilmName,
-                        Genere = movie.Genere,
-                        MoviePlot = movie.MoviePlot,
-                        ProductionYear = movie.ProductionYear,
-                        Trama = movie.Trama
-                    });
+                    Actors = movie.Actors,
+                    Cover = movie.Cover,
+                    Director = movie.Director,
+                    Duration = movie.Duration,
+                    FilmName = movie.FilmName,
+                    Genere = movie.Genere,
+                    MoviePlot = movie.MoviePlot,
+                    ProductionYear = movie.ProductionYear,
+                    Trama = movie.Trama
+                });
 
-                    return MovieServiceEnum.CREATED;
-                }
-                else
-                {
-                    return MovieServiceEnum.ALREADY_EXISTS;
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
+                return CrudCinemaEnum.CREATED;
             }
 
-            return MovieServiceEnum.CREATED;
+            return CrudCinemaEnum.ALREADY_EXISTS;
         }
 
 
-        public MovieServiceEnum CreateMovie(MovieForAddDTO movie)
-        {
-            try
-            {
-                var mv = _uow.MovieRepository.Find(x => x.FilmName == movie.FilmName);
-                //var mv = await _uow.MovieRepository.FindAsync(x => x.FilmName == movie.FilmName);
-                if (mv == null)
-                {
-                    _uow.MovieRepository.Add(new Movie()
-                    {
-                        Actors = movie.Actors,
-                        Cover = movie.Cover,
-                        Director = movie.Director,
-                        Duration = movie.Duration,
-                        FilmName = movie.FilmName,
-                        Genere = movie.Genere,
-                        MoviePlot = movie.MoviePlot,
-                        ProductionYear = movie.ProductionYear,
-                        Trama = movie.Trama
-                    });
+        //public MovieServiceEnum CreateMovie(MovieForAddDTO movie)
+        //{
+        //    try
+        //    {
+        //        var mv = _uow.GetMovieRep.Get(x => x.FilmName == movie.FilmName);
+        //        //var mv = await _uow.MovieRepository.FindAsync(x => x.FilmName == movie.FilmName);
+        //        if (mv == null)
+        //        {
+        //            _uow.GetMovieRep.Insert(new Movie()
+        //            {
+        //                Actors = movie.Actors,
+        //                Cover = movie.Cover,
+        //                Director = movie.Director,
+        //                Duration = movie.Duration,
+        //                FilmName = movie.FilmName,
+        //                Genere = movie.Genere,
+        //                MoviePlot = movie.MoviePlot,
+        //                ProductionYear = movie.ProductionYear,
+        //                Trama = movie.Trama
+        //            });
 
-                    return MovieServiceEnum.CREATED;
-                }
-                else
-                {
-                    return MovieServiceEnum.ALREADY_EXISTS;
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
-            }
+        //            return MovieServiceEnum.CREATED;
+        //        }
+        //        else
+        //        {
+        //            return MovieServiceEnum.ALREADY_EXISTS;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Debug.WriteLine(ex.Message);
+        //    }
 
-            return MovieServiceEnum.CREATED;
-        }
+        //    return MovieServiceEnum.CREATED;
+        //}
         //public MovieServiceEnum CreateMovie(MovieDTO movie)
         //{
         //    if (_uow.Movies.Where(x => x.FilmName == movie.FilmName).Any())
@@ -161,12 +139,12 @@ namespace CinemaBL
         //    return MovieServiceEnum.CREATED;
         //}
 
-        public MovieServiceEnum UpdateMovie(MovieDTO movie)
+        public CrudCinemaEnum Update(MovieDTO movie)
         {
-            var mv = _uow.MovieRepository.Find(x => x.Id == movie.ID);
+            var mv = _uow.GetMovieRep.GetByID(movie.ID);
             if (mv is null)
             {
-                return MovieServiceEnum.NOT_FOUND;
+                return CrudCinemaEnum.NOT_FOUND;
             }
 
             mv.Actors = movie.Actors;
@@ -179,20 +157,44 @@ namespace CinemaBL
             mv.ProductionYear = movie.ProductionYear;
             mv.Trama = movie.Trama;
 
-            _uow.MovieRepository.Update(mv);
-            return MovieServiceEnum.UPDATED;
+            _uow.GetMovieRep.Update(mv);
+            return CrudCinemaEnum.UPDATED;
         }
 
-        public MovieServiceEnum DeleteMovie(int idMovie)
+        public CrudCinemaEnum Delete(int idMovie)
         {
-            var mv = _uow.MovieRepository.Find(x => x.Id == idMovie);
+            var mv = _uow.GetMovieRep.GetByID(idMovie);
             if (mv is null)
             {
-                return MovieServiceEnum.NOT_FOUND;
+                return CrudCinemaEnum.NOT_FOUND;
             }
 
-            _uow.MovieRepository.Delete(mv);
-            return MovieServiceEnum.DELETED;
+            _uow.GetMovieRep.Delete(mv);
+            return CrudCinemaEnum.DELETED;
+        }
+
+        public MovieDTO? GetById(int id)
+        {
+            var mv = _uow.GetMovieRep.GetByID(id);
+            if (mv is null)
+            {
+                return null;
+            }
+
+            return new MovieDTO()
+            {
+                Actors = mv.Actors.ToDefault(),
+                Cover = mv.Cover.ToDefault(),
+                Director = mv.Director.ToDefault(),
+                Duration = mv.Duration.ToDefault(), 
+                FilmName = mv.FilmName.ToDefault(),
+                Genere = mv.Genere.ToDefault(),
+                ID = mv.Id,
+                MoviePlot = mv.MoviePlot.ToDefault(),
+                ProductionYear = mv.ProductionYear.ToDefault(),
+                Trama = mv.Trama.ToDefault()
+            };
+
         }
     }
 }

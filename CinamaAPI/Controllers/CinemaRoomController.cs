@@ -1,10 +1,13 @@
 ﻿using CinemaBL;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
+using System.Formats.Asn1;
 
 namespace CinemaAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]"), Authorize(Roles = "ADMIN")]
     [ApiController]
     public class CinemaRoomController : ControllerBase
     {
@@ -15,11 +18,18 @@ namespace CinemaAPI.Controllers
             _cr = cr;
         }
 
-        [HttpGet(Name = "GetCinemaRooms")]
-        public IEnumerable<CinemaDTO.CinemaRoomDTO> GetCinemaRooms()
+        [HttpGet]
+        [Route("GetAll")]
+        public ActionResult<IEnumerable<CinemaDTO.CinemaRoomDTO>> GetAll()
         {
-            //return _cr.GetCinemaRooms();
-            return _cr.GetAll();
+            return Ok(_cr.GetAll());
+        }
+
+        [HttpGet]
+        [Route("GetByID/{id}")]
+        public ActionResult<CinemaDTO.CinemaRoomDTO>? GetByID(int id)
+        {
+            return Ok(_cr.GetByID(id));
         }
 
         /// <summary>
@@ -29,10 +39,10 @@ namespace CinemaAPI.Controllers
         /// <param name="cc"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("Add")]
-        public ActionResult<string> Add(CinemaDTO.CinemaRoomForAddDTO cc)
+        [Route("Insert")]
+        public IActionResult Insert(CinemaDTO.CinemaRoomForInsertDTO cc)
         {
-            return _cr.Add(cc).ToString();
+            return Ok(_cr.Insert(cc).ToString());
         }
 
         /// <summary>
@@ -40,7 +50,7 @@ namespace CinemaAPI.Controllers
         /// Se viene eliminata, il Responsabile di Sala NON viene eliminato ma rimane “libero”  
         /// </summary>
         [HttpDelete]
-        [Route ("Delete/{id}")]
+        [Route("Delete/{id}")]
         public ActionResult<string> Delete(int id)
         {
             return _cr.Delete(id).ToString();

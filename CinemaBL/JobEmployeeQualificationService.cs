@@ -14,10 +14,10 @@ namespace CinemaBL
     public interface IJobEmployeeQualificationService
     {
         IEnumerable<JobEmployeeQualificationDTO> GetAll();
-        Enums.CinemaEnum Delete(int id);
+        Enums.CrudCinemaEnum Delete(int id);
         JobEmployeeQualificationDTO GetByID(int id);
-        CinemaEnum Update(JobEmployeeQualificationDTO jeq);
-        CinemaEnum Insert(JobEmployeeQualificationForInsertDTO jeq);
+        CrudCinemaEnum Update(JobEmployeeQualificationDTO jeq);
+        CrudCinemaEnum Insert(JobEmployeeQualificationForInsertDTO jeq);
 
         //int MinumRequired { get; }
     }
@@ -43,13 +43,13 @@ namespace CinemaBL
             });
         }
 
-        public CinemaEnum Delete(int id)
+        public CrudCinemaEnum Delete(int id)
         {            
             // controlla che non ci siano employee con la qualifica che da eliminare
             var empl = _uow.GetUserEmployeeRep.Get(x => x.JobQualificationId == id);
             if (empl != null)
             {
-                return CinemaEnum.VIOLATION_MINIMUM_REQUIRED;
+                return CrudCinemaEnum.VIOLATION_MINIMUM_REQUIRED;
             }
 
             var itemToDelete = _uow.GetJobEmployeeQualificationRep.Get(x => x.Id == id).FirstOrDefault();
@@ -57,9 +57,9 @@ namespace CinemaBL
             if (itemToDelete != null)
             {
                 _uow.GetJobEmployeeQualificationRep.Delete(itemToDelete);
-                return CinemaEnum.DELETED;
+                return CrudCinemaEnum.DELETED;
             }
-            return CinemaEnum.NOT_FOUND;
+            return CrudCinemaEnum.NOT_FOUND;
         }
 
         public JobEmployeeQualificationDTO GetByID(int id)
@@ -78,13 +78,13 @@ namespace CinemaBL
             return null;
         }
 
-        public CinemaEnum Update(JobEmployeeQualificationDTO jeq)
+        public CrudCinemaEnum Update(JobEmployeeQualificationDTO jeq)
         {
             // controlla che non ci siano employee con la qualifica che da modificare
             var empl = _uow.GetUserEmployeeRep.Get(x => x.JobQualificationId == jeq.Id);
             if (empl != null)
             {
-                return CinemaEnum.VIOLATION_MINIMUM_REQUIRED;
+                return CrudCinemaEnum.VIOLATION_MINIMUM_REQUIRED;
             }
 
 
@@ -95,13 +95,13 @@ namespace CinemaBL
                 item.Description = jeq.Description;
                 item.MinimumRequired = jeq.MinimumRequired;
 
-                return CinemaEnum.UPDATED;
+                return CrudCinemaEnum.UPDATED;
             }
 
-            return CinemaEnum.NOT_FOUND;
+            return CrudCinemaEnum.NOT_FOUND;
         }
 
-        public CinemaEnum Insert(JobEmployeeQualificationForInsertDTO jeq)
+        public CrudCinemaEnum Insert(JobEmployeeQualificationForInsertDTO jeq)
         {
             // controllo se la qualifica esite già
             var item = _uow.GetJobEmployeeQualificationRep.Get(x => x.ShortDescr.ToLower().Trim() == jeq.ShortDescr.ToLower().Trim()).FirstOrDefault();
@@ -113,10 +113,10 @@ namespace CinemaBL
                     ShortDescr = jeq.ShortDescr,
                     MinimumRequired = jeq.MinimumRequired
                 });
-                return CinemaEnum.CREATED;
+                return CrudCinemaEnum.CREATED;
             }
 
-            return CinemaEnum.ALREADY_EXISTS;
+            return CrudCinemaEnum.ALREADY_EXISTS;
         }
 
         //public int MinumRequired { get; private set; }

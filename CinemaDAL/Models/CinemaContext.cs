@@ -229,6 +229,12 @@ public partial class CinemaContext : DbContext
                 .HasDefaultValueSql("([dbo].[GetMinDate]())")
                 .HasColumnType("datetime")
                 .HasColumnName("startDate");
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasDefaultValueSql("('WAITING')")
+                .HasComment("dominio:\r\nWAITING --> deve ancora iniziare\r\nIN_PROGRESS --> è in corso di visione\r\nCLEAN_TIME --> è finito e stanno facendo le pulizie\r\nDONE --> finito e sala liberata, include i 10 min extra film\r\n\r\nutile per semplificare i filtri, aggiornata dal BGW")
+                .HasColumnName("status");
             entity.Property(e => e.StdSeat).HasColumnName("stdSeat");
             entity.Property(e => e.VipPrice)
                 .HasComputedColumnSql("([dbo].[GetUpgradedPrice]([cinemaRoomId],[price]))", false)
