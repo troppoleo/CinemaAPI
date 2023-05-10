@@ -1,4 +1,6 @@
-﻿using CinemaDAL.Models;
+﻿using CinemaBL.Enums;
+using CinemaDAL.Models;
+using CinemaDTO;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -28,11 +30,12 @@ namespace CinemaBL.Repository
 
         void Update(T item);
         void UpdateRange(IEnumerable<T> items);
+        //CinemaEnum AddMinimal(UsersEmployeeMinimalDTO ue);
     }
 
     public class Repository<T> : IRepository<T> where T : class, new()
     {
-        private readonly CinemaContext _ctx;
+        internal readonly CinemaContext _ctx;
 
         public Repository(CinemaContext ctx)
         {

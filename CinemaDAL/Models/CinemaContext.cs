@@ -17,6 +17,12 @@ public partial class CinemaContext : DbContext
 
     public virtual DbSet<CinemaRoom> CinemaRooms { get; set; }
 
+    public virtual DbSet<CinemaRoomCrossUserEmployee> CinemaRoomCrossUserEmployees { get; set; }
+
+    public virtual DbSet<Customer> Customers { get; set; }
+
+    public virtual DbSet<CustomerCrossMovieSchedule> CustomerCrossMovieSchedules { get; set; }
+
     public virtual DbSet<JobEmployeeQualification> JobEmployeeQualifications { get; set; }
 
     public virtual DbSet<Movie> Movies { get; set; }
@@ -25,11 +31,13 @@ public partial class CinemaContext : DbContext
 
     public virtual DbSet<Projection> Projections { get; set; }
 
+    public virtual DbSet<UserEmployee> UserEmployees { get; set; }
+
     public virtual DbSet<UserType> UserTypes { get; set; }
 
     public virtual DbSet<UsersAdmin> UsersAdmins { get; set; }
 
-    public virtual DbSet<UsersEmployee> UsersEmployees { get; set; }
+    public virtual DbSet<WeekCalendar> WeekCalendars { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
@@ -66,6 +74,77 @@ public partial class CinemaContext : DbContext
                 .HasDefaultValueSql("((0))")
                 .HasComment("numero di posti VIP assegnati")
                 .HasColumnName("vipSeat");
+        });
+
+        modelBuilder.Entity<CinemaRoomCrossUserEmployee>(entity =>
+        {
+            entity.ToTable("CinemaRoomCrossUserEmployee", tb => tb.HasComment("tabella che associa gli impiegati alle sale cinema"));
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.CinemaRoomId).HasColumnName("cinemaRoomId");
+            entity.Property(e => e.UserEmployeeId).HasColumnName("userEmployeeId");
+
+            entity.HasOne(d => d.CinemaRoom).WithMany(p => p.CinemaRoomCrossUserEmployees)
+                .HasForeignKey(d => d.CinemaRoomId)
+                .HasConstraintName("FK_CinemaRoomCrossUserEmployee_CinemaRoom");
+
+            entity.HasOne(d => d.UserEmployee).WithMany(p => p.CinemaRoomCrossUserEmployees)
+                .HasForeignKey(d => d.UserEmployeeId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_CinemaRoomCrossUserEmployee_UserEmployee");
+        });
+
+        modelBuilder.Entity<Customer>(entity =>
+        {
+            entity.ToTable("Customer");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Birthdate)
+                .HasColumnType("date")
+                .HasColumnName("birthdate");
+            entity.Property(e => e.Email)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("email");
+            entity.Property(e => e.Name)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("name");
+            entity.Property(e => e.Password)
+                .HasMaxLength(100)
+                .HasColumnName("password");
+            entity.Property(e => e.Surname)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("surname");
+        });
+
+        modelBuilder.Entity<CustomerCrossMovieSchedule>(entity =>
+        {
+            entity.ToTable("CustomerCrossMovieSchedule", tb => tb.HasComment("tiene traccia dei film che un customer ha prenotato"));
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.CommentNote)
+                .HasMaxLength(1000)
+                .IsUnicode(false)
+                .HasComment("Commento sul film")
+                .HasColumnName("commentNote");
+            entity.Property(e => e.CustomerId).HasColumnName("customerId");
+            entity.Property(e => e.MovieScheduleId).HasColumnName("movieScheduleId");
+            entity.Property(e => e.Rate)
+                .HasComment("Valurazione del film")
+                .HasColumnName("rate");
+            entity.Property(e => e.Ticket).HasColumnName("ticket");
+
+            entity.HasOne(d => d.Customer).WithMany(p => p.CustomerCrossMovieSchedules)
+                .HasForeignKey(d => d.CustomerId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_CustomerCrossMovieSchedule_Customer");
+
+            entity.HasOne(d => d.MovieSchedule).WithMany(p => p.CustomerCrossMovieSchedules)
+                .HasForeignKey(d => d.MovieScheduleId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_CustomerCrossMovieSchedule_MovieSchedule");
         });
 
         modelBuilder.Entity<JobEmployeeQualification>(entity =>
@@ -115,6 +194,9 @@ public partial class CinemaContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("genere");
+            entity.Property(e => e.LimitAge)
+                .HasComment("indica se è vietato ai minori di anni X")
+                .HasColumnName("limitAge");
             entity.Property(e => e.MoviePlot)
                 .HasMaxLength(50)
                 .IsUnicode(false)
@@ -129,20 +211,30 @@ public partial class CinemaContext : DbContext
 
         modelBuilder.Entity<MovieSchedule>(entity =>
         {
-            entity.HasKey(e => new { e.MovieId, e.CinemaRoomId }).HasName("PK_Person");
+            entity.HasKey(e => e.Id).HasName("PK_Person");
 
             entity.ToTable("MovieSchedule", tb => tb.HasComment("mette in relazione i film con le sale cinematografiche, contiene:\r\n> data e ora di inizio \r\n> l'approvazione dell'ADMIN {1, 0}\r\n"));
 
-            entity.Property(e => e.MovieId).HasColumnName("movieId");
+            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CinemaRoomId).HasColumnName("cinemaRoomId");
             entity.Property(e => e.IsApproved)
                 .HasDefaultValueSql("((0))")
                 .HasComment("1 se è stato approvato dall'Admin")
                 .HasColumnName("isApproved");
+            entity.Property(e => e.MovieId).HasColumnName("movieId");
+            entity.Property(e => e.Price)
+                .HasColumnType("money")
+                .HasColumnName("price");
             entity.Property(e => e.StartDate)
                 .HasDefaultValueSql("([dbo].[GetMinDate]())")
                 .HasColumnType("datetime")
                 .HasColumnName("startDate");
+            entity.Property(e => e.StdSeat).HasColumnName("stdSeat");
+            entity.Property(e => e.VipPrice)
+                .HasComputedColumnSql("([dbo].[GetUpgradedPrice]([cinemaRoomId],[price]))", false)
+                .HasColumnType("money")
+                .HasColumnName("vipPrice");
+            entity.Property(e => e.VipSeat).HasColumnName("vipSeat");
 
             entity.HasOne(d => d.CinemaRoom).WithMany(p => p.MovieSchedules)
                 .HasForeignKey(d => d.CinemaRoomId)
@@ -157,7 +249,7 @@ public partial class CinemaContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__Projecti__3214EC07FD868ADB");
 
-            entity.ToTable("Projection", tb => tb.HasComment("contiene la programmazione delle proiezioni e l'associazione della sala cinema"));
+            entity.ToTable("Projection", tb => tb.HasComment("contiene la schedulazione/programmazione delle proiezioni e l'associazione della sala cinema"));
 
             entity.Property(e => e.CinemaRoomId).HasColumnName("cinemaRoomId");
             entity.Property(e => e.EndShow)
@@ -174,6 +266,34 @@ public partial class CinemaContext : DbContext
             entity.HasOne(d => d.CinemaRoom).WithMany(p => p.Projections)
                 .HasForeignKey(d => d.CinemaRoomId)
                 .HasConstraintName("FK_Projection_ToTable");
+        });
+
+        modelBuilder.Entity<UserEmployee>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__UsersEmp__3214EC071722E0AA");
+
+            entity.ToTable("UserEmployee", tb => tb.HasComment("specifica per i soli Employee (no admin)"));
+
+            entity.Property(e => e.IsActive)
+                .HasComment("serve solo ai bigliettai, per indicare se sono attivi o meno {null/0, 1 }")
+                .HasColumnName("isActive");
+            entity.Property(e => e.JobQualificationId).HasColumnName("jobQualificationID");
+            entity.Property(e => e.Name)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("name");
+            entity.Property(e => e.Password).HasMaxLength(200);
+            entity.Property(e => e.Surname)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("surname");
+            entity.Property(e => e.UserName)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.JobQualification).WithMany(p => p.UserEmployees)
+                .HasForeignKey(d => d.JobQualificationId)
+                .HasConstraintName("FK_JobQual_Employ");
         });
 
         modelBuilder.Entity<UserType>(entity =>
@@ -216,40 +336,23 @@ public partial class CinemaContext : DbContext
                 .IsUnicode(false);
         });
 
-        modelBuilder.Entity<UsersEmployee>(entity =>
+        modelBuilder.Entity<WeekCalendar>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__UsersEmp__3214EC071722E0AA");
+            entity
+                .HasNoKey()
+                .ToTable("WeekCalendar", tb => tb.HasComment("contiene i giorni della settimana con le fasce di apertura\r\n"));
 
-            entity.ToTable("UsersEmployee", tb => tb.HasComment("specifica per i soli Employee (no admin)"));
-
-            entity.Property(e => e.Birthdate)
-                .HasDefaultValueSql("([dbo].[GetMinDate]())")
-                .HasColumnType("date");
-            entity.Property(e => e.CinemaRoomId).HasColumnName("cinemaRoomId");
-            entity.Property(e => e.IsActive)
-                .HasComment("serve solo ai bilbiettai, per indicare se sono attivi o meno {null/0, 1 }")
-                .HasColumnName("isActive");
-            entity.Property(e => e.JobQualificationId).HasColumnName("jobQualificationID");
-            entity.Property(e => e.Name)
-                .HasMaxLength(50)
+            entity.Property(e => e.DayName)
+                .HasMaxLength(20)
                 .IsUnicode(false)
-                .HasColumnName("name");
-            entity.Property(e => e.Password).HasMaxLength(200);
-            entity.Property(e => e.Surname)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasColumnName("surname");
-            entity.Property(e => e.UserName)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-
-            entity.HasOne(d => d.CinemaRoom).WithMany(p => p.UsersEmployees)
-                .HasForeignKey(d => d.CinemaRoomId)
-                .HasConstraintName("FK_UsersEmployee_CinemaRoom");
-
-            entity.HasOne(d => d.JobQualification).WithMany(p => p.UsersEmployees)
-                .HasForeignKey(d => d.JobQualificationId)
-                .HasConstraintName("FK_JobQual_Employ");
+                .HasColumnName("dayName");
+            entity.Property(e => e.EndTime)
+                .HasPrecision(0)
+                .HasColumnName("endTIme");
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.StartTime)
+                .HasPrecision(0)
+                .HasColumnName("startTime");
         });
 
         OnModelCreatingPartial(modelBuilder);

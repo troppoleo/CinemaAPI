@@ -1,26 +1,42 @@
 ﻿using CinemaBL;
+using CinemaBL.Enums;
+using CinemaDTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Identity.Client;
 using static CinemaBL.UsersMng;
 
 namespace CinemaAPI.Controllers
 {
-    [Route("[controller]/[action]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class EmployeeController : ControllerBase
     {
         private readonly IUsersMng _um;
+        private readonly IUserEmployeeService _ues;
 
-        public EmployeeController(CinemaBL.IUsersMng um)
+        public EmployeeController(CinemaBL.IUsersMng um, IUserEmployeeService ues)
         {
             _um = um;
+            _ues = ues;
         }
 
-        [HttpGet(Name = "GetEmplyee"), AllowAnonymous]
-        public IEnumerable<CinemaDTO.UsersEmployeeDTO> GetEmplyee()
+
+        [HttpGet, AllowAnonymous]
+        [Route("GetAll2")]
+        public IEnumerable<CinemaDTO.UserEmployeeDTO> GetAll2()
         {
+
+            return _ues.GetAll();
+        }
+
+        [HttpGet, AllowAnonymous]
+        [Route("GetEmplyee")]
+        public IEnumerable<CinemaDTO.UserEmployeeDTO> GetEmplyee()
+        {
+
             return _um.GetUsersEmployee();
         }
 
@@ -31,14 +47,17 @@ namespace CinemaAPI.Controllers
         /// </summary>
         /// <param name="userName">insensitive case</param>
         /// <returns></returns>
-        [HttpGet(Name = "GetEmployeeByUserName"), AllowAnonymous]
-        public IEnumerable<CinemaDTO.UsersEmployeeDTO> GetUsersEmployeeByUserName(string userName)
+        [HttpGet, AllowAnonymous]
+        [Route("GetEmployeeByUserName")]
+        public IEnumerable<CinemaDTO.UserEmployeeDTO> GetUsersEmployeeByUserName(string userName)
         {
             return _um.GetUsersEmployeeByUserName(userName);
         }
 
 
-        [HttpPost(Name = "CreateNewEmployee")]
+        [Obsolete]
+        [HttpPost]
+        [Route("CreateNewEmployee")]
         public ActionResult<string> CreateNewEmployee([FromBody] CinemaDTO.UsersEmployeeMinimalDTO emp)
         {
             UsersMngEnum res = UsersMngEnum.NONE;
@@ -53,9 +72,33 @@ namespace CinemaAPI.Controllers
             }
         }
 
+        //[HttpPost]
+        //[Route("Add")]
+        //public ActionResult<CinemaEnum> Add(UsersEmployeeDTO ue)
+        //{
+        //    return Ok(_ues.Add(ue));
+        //}
 
-        [HttpPatch(Name = "UpdateEmployee")]
-        public ActionResult<string> UpdateEmployee([FromBody] CinemaDTO.UsersEmployeeDTO emp)
+        //[HttpPost]
+        //[Route("AddMinimal")]
+        //public ActionResult<CinemaEnum> AddMinimal(UsersEmployeeMinimalDTO ue)
+        //{
+        //    return Ok(_ues.AddMinimal(ue));
+        //}
+
+        //[HttpPost]
+        //[Route("Update")]
+        //public ActionResult<CinemaEnum> Update(UsersEmployeeDTO ue)
+        //{
+        //    return Ok(_ues.Update(ue));
+        //}
+
+
+
+
+        [HttpPatch]
+        [Route("UpdateEmployee")]
+        public ActionResult<string> UpdateEmployee([FromBody] CinemaDTO.UserEmployeeDTO emp)
         {
             try
             {
@@ -65,14 +108,15 @@ namespace CinemaAPI.Controllers
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
-            }            
+            }
         }
 
-        [HttpPatch(Name = "UpdateEmployeeJob")]
+        [HttpPatch]
+        [Route("UpdateEmployeeJob")]
         public ActionResult<string> UpdateEmployeeJob([FromBody] CinemaDTO.UsersEmployeeJobDTO emp)
         {
             try
-            {                
+            {
                 return Ok(_um.UpdateEmployeeJob(emp).ToString());
             }
             catch (Exception ex)
@@ -81,14 +125,12 @@ namespace CinemaAPI.Controllers
             }
         }
 
-        [HttpDelete(Name = "DeleteEmployeeJob")]
+        [HttpDelete]
+        [Route("DeleteEmployeeJob")]
         public ActionResult<string> DeleteEmployeeJob([FromQuery] int id)
         {
             return Ok(_um.DeleteEmployeeJob(id));
         }
-
-
-
 
     }
 }

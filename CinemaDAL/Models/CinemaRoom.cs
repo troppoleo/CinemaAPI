@@ -40,9 +40,9 @@ public partial class CinemaRoom
     /// </summary>
     public decimal? UpgradeVipPrice { get; set; }
 
+    public virtual ICollection<CinemaRoomCrossUserEmployee> CinemaRoomCrossUserEmployees { get; set; } = new List<CinemaRoomCrossUserEmployee>();
+
     public virtual ICollection<MovieSchedule> MovieSchedules { get; set; } = new List<MovieSchedule>();
 
     public virtual ICollection<Projection> Projections { get; set; } = new List<Projection>();
-
-    public virtual ICollection<UsersEmployee> UsersEmployees { get; set; } = new List<UsersEmployee>();
 }

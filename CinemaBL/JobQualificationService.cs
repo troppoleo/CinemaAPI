@@ -78,7 +78,7 @@ namespace CinemaBL
             }
 
             /// Non può essere né eliminata né modificata una qualifica se ha anche solo un EMPLOYEE associato 
-            if (_ctx.UsersEmployees.Any(x => x.JobQualificationId == j.Id))
+            if (_ctx.UserEmployees.Any(x => x.JobQualificationId == j.Id))
             {
                 return JobQualificationServiceEnum.NOT_REMOVABLE_BECAUSE_HAS_EMPLOY;
             }

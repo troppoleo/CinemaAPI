@@ -1,0 +1,189 @@
+﻿using CinemaBL.Enums;
+using CinemaBL.Repository;
+using CinemaDAL.Models;
+using CinemaDTO;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CinemaBL
+{
+
+    public interface IUserEmployeeService
+    {
+        //void AddMinimal(UsersEmployeeMinimalDTO eee);
+
+        CinemaEnum Update(UserEmployeeDTO ue);
+        //CinemaEnum AddMinimal(UsersEmployeeMinimalDTO ue);
+        IEnumerable<UserEmployeeDTO>? GetAll();
+        UserEmployeeDTO? Get(int id);
+        CinemaEnum Insert(UserEmployeeForInsertDTO ued);
+        CinemaEnum Delete(int id);
+        //void Update(UsersEmployeeDTO ued);
+    }
+
+    public class UserEmployeeService : IUserEmployeeService
+    {
+        private readonly IUnitOfWorkGeneric _uow;
+
+        public UserEmployeeService(IUnitOfWorkGeneric uow)
+        {
+            _uow = uow;
+        }
+
+        public void AddMinimal(UsersEmployeeMinimalDTO eee)
+        {
+            _uow.GetUserEmployeeRep.AddMinimal(eee);
+        }
+
+        public UserEmployeeDTO? Get(int id)
+        {
+            var xx = _uow.GetUserEmployeeRep.Get(x => x.Id == id);
+            if (xx.Any())
+            {
+                return _uow.GetUserEmployeeRep.Get(x => x.Id == id).Select(FillDTO()).FirstOrDefault();
+            }
+            return null;
+        }
+
+        public IEnumerable<UserEmployeeDTO>? GetAll()
+        {
+            var xx = _uow.UserEmployeeRepository.Get();
+            if (xx.Any())
+            {
+                return xx.Select(FillDTO());
+            }
+            return null;
+        }
+
+        private static Func<UserEmployee, UserEmployeeDTO> FillDTO()
+        {
+            return x => new UserEmployeeDTO()
+            {
+                UserName = x.UserName,
+                JobQualificationId = x.JobQualificationId,
+                Name = x.Name,
+                Surname = x.Surname,
+                isActive = x.IsActive.Value
+            };
+        }
+
+        public CinemaEnum Delete(int id)
+        {
+            var item = _uow.GetUserEmployeeRep.Get(x => x.Id == id).FirstOrDefault();
+            if (item != null)
+            {
+                var jobEmplQual = _uow.GetJobEmployeeQualificationRep.Get(x => x.Id == item.JobQualificationId).FirstOrDefault();
+                if (jobEmplQual is not null && jobEmplQual.MinimumRequired.HasValue)
+                {
+                    if (_uow.GetUserEmployeeRep.Get(x => x.JobQualificationId == item.JobQualificationId).Count() >= jobEmplQual.MinimumRequired.Value)
+                    {
+                        _uow.GetUserEmployeeRep.Delete(item);
+                        return CinemaEnum.DELETED;
+                    }
+
+                    if (jobEmplQual is not null && jobEmplQual.Id == (int)JobEmployeeQualificationEnum.OWN_SALA)
+                    {
+                        if (!_uow.GetCinemaRoomCrossUserEmployeeRep.Get(x => x.UserEmployeeId == item.Id).Any())
+                        {
+                            _uow.GetUserEmployeeRep.Delete(item);
+                            return CinemaEnum.DELETED;
+                        }
+                    }
+
+                    return CinemaEnum.VIOLATION_MINIMUM_REQUIRED;
+                }
+            }
+            return CinemaEnum.NOT_FOUND;
+        }
+
+        public CinemaEnum Update(UserEmployeeDTO ue)
+        {
+            var item = _uow.GetUserEmployeeRep.Get(x => x.Id == ue.Id).FirstOrDefault();
+
+            if (item != null)
+            {
+                var jobEmplQual = _uow.GetJobEmployeeQualificationRep.Get(x => x.Id == item.JobQualificationId).FirstOrDefault();
+                if (jobEmplQual is not null && jobEmplQual.MinimumRequired.HasValue)
+                {
+                    item.UserName = ue.UserName;
+                    item.Password = ue.Password;
+                    item.JobQualificationId = ue.JobQualificationId;
+                    item.Name = ue.Name;
+                    item.Surname = ue.Surname;
+                    item.IsActive = ue.isActive;
+
+                    if (_uow.GetUserEmployeeRep.Get(x => x.JobQualificationId == item.JobQualificationId).Count() >= jobEmplQual.MinimumRequired.Value)
+                    {
+                        _uow.GetUserEmployeeRep.Update(item);
+                        return CinemaEnum.UPDATED;
+                    }
+
+                    if (jobEmplQual is not null && jobEmplQual.Id == (int)JobEmployeeQualificationEnum.OWN_SALA)
+                    {
+                        if (!_uow.GetCinemaRoomCrossUserEmployeeRep.Get(x => x.UserEmployeeId == item.Id).Any())
+                        {
+                            _uow.GetUserEmployeeRep.Update(item);
+                            return CinemaEnum.UPDATED;
+                        }
+                    }
+
+                    return CinemaEnum.VIOLATION_MINIMUM_REQUIRED;
+                }
+            }
+
+            return CinemaEnum.NOT_FOUND;
+        }
+
+        public CinemaEnum Insert(UserEmployeeForInsertDTO ued)
+        {
+            var emp = _uow.GetUserEmployeeRep.Get(x => x.UserName.Trim().ToLower() == ued.UserName.Trim().ToLower());
+            if (emp != null)
+            {
+                _uow.GetUserEmployeeRep.Insert(new UserEmployee()
+                {
+                    Name = ued.Name,
+                    Surname = ued.Surname,
+                    UserName = ued.UserName,
+                    Password = ued.Password,
+                    JobQualificationId = ued.JobQualificationId,
+                    IsActive = ued.isActive
+                });
+
+                return CinemaEnum.CREATED;
+            }
+
+            return CinemaEnum.ALREADY_EXISTS;
+        }
+
+      
+
+
+
+        //public void Update(UsersEmployeeDTO ue)
+        //{
+        //    if (_uow.UserEmployeeExt.Get(x => x.id == ue.Id) == null)
+        //    {
+        //        return;
+        //    }
+
+        //    UsersEmployee usersEmployee = new UsersEmployee()
+        //    {
+        //        Id = ue.Id,
+        //        UserName = ue.UserName,
+        //        Password = ue.Password,
+        //        JobQualificationId = ue.JobQualificationId.Value,
+        //        Name = ue.Name,
+        //        Surname = ue.Surname,
+        //        Birthdate = ue.Birthdate,
+        //        CinemaRoomId = ue.cinemaRoomId,
+        //        IsActive = ue.isActive
+        //    };
+
+        //    _uow.UserEmployeeExt.Update(ue);
+        //}
+    }
+
+}

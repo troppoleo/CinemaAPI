@@ -11,6 +11,8 @@ namespace CinemaDAL.Models;
 /// </summary>
 public partial class MovieSchedule
 {
+    public int Id { get; set; }
+
     public int MovieId { get; set; }
 
     public int CinemaRoomId { get; set; }
@@ -22,7 +24,17 @@ public partial class MovieSchedule
     /// </summary>
     public int? IsApproved { get; set; }
 
+    public int? VipSeat { get; set; }
+
+    public int? StdSeat { get; set; }
+
+    public decimal? Price { get; set; }
+
+    public decimal? VipPrice { get; set; }
+
     public virtual CinemaRoom CinemaRoom { get; set; } = null!;
+
+    public virtual ICollection<CustomerCrossMovieSchedule> CustomerCrossMovieSchedules { get; set; } = new List<CustomerCrossMovieSchedule>();
 
     public virtual Movie Movie { get; set; } = null!;
 }

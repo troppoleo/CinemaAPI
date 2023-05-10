@@ -21,5 +21,5 @@ public partial class JobEmployeeQualification
     /// </summary>
     public int? MinimumRequired { get; set; }
 
-    public virtual ICollection<UsersEmployee> UsersEmployees { get; set; } = new List<UsersEmployee>();
+    public virtual ICollection<UserEmployee> UserEmployees { get; set; } = new List<UserEmployee>();
 }

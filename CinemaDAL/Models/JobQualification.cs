@@ -16,5 +16,5 @@ public partial class JobQualification
 
     public string Description { get; set; } = null!;
 
-    public virtual ICollection<UsersEmployee> UsersEmployees { get; set; } = new List<UsersEmployee>();
+    public virtual ICollection<UserEmployee> UsersEmployees { get; set; } = new List<UserEmployee>();
 }

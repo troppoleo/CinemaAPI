@@ -14,6 +14,8 @@ namespace CinemaBL.Repository
         IRepository<Movie> MovieRepository { get; }
         IRepository<CinemaRoom> CinemaRoomRep { get; }
 
+        //IRepository<UsersEmployee> UsersEmployeeRep { get; }
+        IUsersEmployeeRepository<UserEmployee> UsersEmployeeRep { get; }
 
         IDbContextTransaction BeginTransaction();
         Task<bool> SaveChangesAsync();
@@ -32,10 +34,6 @@ namespace CinemaBL.Repository
 
         private MovieRepository movieRepository;
         public IRepository<Movie> MovieRepository => movieRepository ??= new MovieRepository(_ctx);
-
-        private CinemaRoomRepository roomRepository;
-        public IRepository<CinemaRoom> CinemaRoomRep => roomRepository ??= new CinemaRoomRepository(_ctx);
-
         // questo è equivalente:
         //public IRepository<Movie> MovieRepository
         //{
@@ -45,6 +43,27 @@ namespace CinemaBL.Repository
         //        return movieRepository;
         //    }
         //}
+
+        private CinemaRoomRepository roomRepository;
+        public IRepository<CinemaRoom> CinemaRoomRep => roomRepository ??= new CinemaRoomRepository(_ctx);
+
+
+        private IUsersEmployeeRepository<UserEmployee> usersEmployeeRepository;        
+        public IUsersEmployeeRepository<UserEmployee> UsersEmployeeRep
+        {
+            get
+            {
+                if (usersEmployeeRepository == null)
+                {
+                    usersEmployeeRepository = new UsersEmployeeRepository(_ctx);
+                }
+                return usersEmployeeRepository;
+            }
+        }
+
+        //private IUsersEmployeeRepository userEmployeeRepository;
+        //public IUsersEmployeeRepository<UsersEmployee> UsersEmployeeRep => userEmployeeRepository ??= new UsersEmployeeRepository(_ctx);
+
 
 
         public async Task<bool> SaveChangesAsync()

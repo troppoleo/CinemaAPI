@@ -2,6 +2,7 @@ using CinemaAPI.Middleware;
 using CinemaAPI.Tasks;
 using CinemaBL;
 using CinemaBL.Repository;
+using CinemaDAL.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -18,17 +19,19 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddDbContext<CinemaDAL.Models.CinemaContext>(x => x.UseSqlServer(builder.Configuration.GetConnectionString("connSql")));
 
 // vari DI:
-builder.Services.AddTransient<CinemaBL.IUserTypeService, CinemaBL.UserTypeService>();
-builder.Services.AddTransient<CinemaBL.IJobQualificationService, CinemaBL.JobQualificationService>();
-builder.Services.AddTransient<CinemaBL.ICinemaRoomService, CinemaBL.CinemaRoomService>();
-builder.Services.AddTransient<CinemaBL.ITokenMng, CinemaBL.TokenMng>();
-builder.Services.AddTransient<CinemaBL.IUsersMng, CinemaBL.UsersMng>();
+builder.Services.AddTransient<IUserTypeService, UserTypeService>();
+builder.Services.AddTransient<IJobQualificationService, JobQualificationService>();
+builder.Services.AddTransient<ICinemaRoomService, CinemaRoomService>();
+builder.Services.AddTransient<ITokenMng, TokenMng>();
+builder.Services.AddTransient<IUsersMng, UsersMng>();
 builder.Services.AddTransient<IMovieService, MovieService>();
+builder.Services.AddTransient<IUserEmployeeService, UserEmployeeService>();
+builder.Services.AddTransient<IJobEmployeeQualificationService, JobEmployeeQualificationService>();
 
 // UnitOfWork e Repository: query centralizzate nel repository:
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-
+builder.Services.AddScoped<IUnitOfWorkGeneric, UnitOfWorkGeneric>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -78,7 +81,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
         };
     });
@@ -112,10 +115,12 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// salvataggi a DB:
-app.MySaveChangeOnDB();
 // gestione delle eccezioni
 app.MyCatchException();
+
+// salvataggi a DB:
+app.MySaveChangeOnDB();
+
 
 
 app.Run();

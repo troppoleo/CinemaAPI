@@ -40,5 +40,10 @@ public partial class Movie
     /// </summary>
     public string? Cover { get; set; }
 
+    /// <summary>
+    /// indica se è vietato ai minori di anni X
+    /// </summary>
+    public int? LimitAge { get; set; }
+
     public virtual ICollection<MovieSchedule> MovieSchedules { get; set; } = new List<MovieSchedule>();
 }
