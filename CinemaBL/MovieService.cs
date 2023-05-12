@@ -45,7 +45,7 @@ namespace CinemaBL
                     Actors = x.Actors.ToDefault(),
                     Cover = x.Cover.ToDefault(),
                     Director = x.Director.ToDefault(),
-                    Duration = x.Duration.ToDefault(),
+                    Duration = x.Duration,
                     FilmName = x.FilmName.ToDefault(),
                     Genere = x.Genere.ToDefault(),
                     ID = x.Id,
@@ -58,8 +58,7 @@ namespace CinemaBL
 
         public CrudCinemaEnum Insert(MovieForAddDTO movie)
         {
-            var mv = _uow.GetMovieRep.Get(x => x.FilmName == movie.FilmName);
-            if (mv == null)
+            if (!_uow.GetMovieRep.Get(x => x.FilmName == movie.FilmName).Any())
             {
                 _uow.GetMovieRep.Insert(new Movie()
                 {
@@ -186,7 +185,7 @@ namespace CinemaBL
                 Actors = mv.Actors.ToDefault(),
                 Cover = mv.Cover.ToDefault(),
                 Director = mv.Director.ToDefault(),
-                Duration = mv.Duration.ToDefault(), 
+                Duration = mv.Duration,
                 FilmName = mv.FilmName.ToDefault(),
                 Genere = mv.Genere.ToDefault(),
                 ID = mv.Id,

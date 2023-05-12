@@ -37,11 +37,7 @@ namespace CinemaDTO
         /// </summary>
         public int? MaxStdSeat { get; set; }
 
-        /// <summary>
-        /// percentuale di maggiorazione del prezzo VIP rispetto al prezzo standard
-        /// </summary>
-        public decimal? UpgradeVipPrice { get; set; }
-
+        
     }
 
 

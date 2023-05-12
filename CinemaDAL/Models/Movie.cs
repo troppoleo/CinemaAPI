@@ -12,7 +12,7 @@ public partial class Movie
 
     public string? FilmName { get; set; }
 
-    public int? Duration { get; set; }
+    public int Duration { get; set; }
 
     public string? Genere { get; set; }
 

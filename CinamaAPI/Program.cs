@@ -29,6 +29,7 @@ builder.Services.AddTransient<IUsersMng, UsersMng>();
 builder.Services.AddTransient<IMovieService, MovieService>();
 builder.Services.AddTransient<IUserEmployeeService, UserEmployeeService>();
 builder.Services.AddTransient<IJobEmployeeQualificationService, JobEmployeeQualificationService>();
+builder.Services.AddTransient<IMovieScheduleService, MovieScheduleService>();
 
 // UnitOfWork e Repository: query centralizzate nel repository:
 //builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -70,7 +71,8 @@ builder.Services.AddSwaggerGen(opt =>
 
 
 // Registro il mio Periodic Background Task
-builder.Services.AddHostedService<ServiceSetStatusToDONE>();
+// TODO: RIABILITARE, ADESSO MI DA SOLO FASTIDIO
+//builder.Services.AddHostedService<ServiceSetStatusToDONE>();
 
 // added
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

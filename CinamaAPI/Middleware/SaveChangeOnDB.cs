@@ -89,26 +89,30 @@ namespace CinemaAPI.Middleware
 
         public async Task InvokeAsync(HttpContext context, /*IUnitOfWork uow, */ IUnitOfWorkGeneric uowg)
         {
-            try
-            {
-                await _next(context);
-                //await uow.SaveChangesAsync();
+            await _next(context);
 
-                uowg.Save();
-            }
-            catch (Exception ex)
-            {
-                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                context.Request.ContentType = "application/json";
-                //context.Request.ContentType = "text/plain";
-                await context.Response.WriteAsJsonAsync(ex.Message);
+            uowg.Save();
 
-                throw new Exception($"Error during Context.SaveChanges() nel middleware - Message: {ex.Message}", ex);
-            }
-            finally
-            {
-                // qui potrei mettere le Dispose()
-            }
+            //try
+            //{
+            //    await _next(context);
+            //    //await uow.SaveChangesAsync();
+
+            //    uowg.Save();
+            //}
+            //catch (Exception ex)
+            //{
+            //    context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            //    context.Request.ContentType = "application/json";
+            //    //context.Request.ContentType = "text/plain";
+            //    await context.Response.WriteAsJsonAsync(ex.Message);
+
+            //    throw new Exception($"Error during Context.SaveChanges() nel middleware - Message: {ex.Message}", ex);
+            //}
+            //finally
+            //{
+            //    // qui potrei mettere le Dispose()
+            //}
         }
 
     }

@@ -56,9 +56,8 @@ namespace CinemaAPI.Tasks
         /// <exception cref="NotImplementedException"></exception>
         private bool CheckIfMovieIsDone(MovieSchedule sm)
         {
-            //int duration = ctx.Movies.Where(x => x.Id == sm.MovieId).FirstOrDefault().Duration.Value;
-            int duration = sm.Movie.Duration.Value;
-            DateTime dtEndMovie = sm.StartDate.Value.AddMinutes(duration).AddMinutes(int.Parse(_conf["Generic:CleaninigTime"]));
+            int duration = sm.Movie.Duration;
+            DateTime dtEndMovie = sm.StartDate.AddMinutes(duration).AddMinutes(int.Parse(_conf["Generic:CleaninigTime"]));
 
             if (dtEndMovie >= DateTime.Now)
             {

@@ -25,11 +25,6 @@ public partial class CinemaRoom
     /// </summary>
     public int? MaxStdSeat { get; set; }
 
-    /// <summary>
-    /// percentuale di maggiorazione del prezzo VIP rispetto al prezzo standard
-    /// </summary>
-    public decimal? UpgradeVipPrice { get; set; }
-
     public virtual ICollection<CinemaRoomCrossUserEmployee> CinemaRoomCrossUserEmployees { get; set; } = new List<CinemaRoomCrossUserEmployee>();
 
     public virtual ICollection<MovieSchedule> MovieSchedules { get; set; } = new List<MovieSchedule>();

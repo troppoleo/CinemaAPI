@@ -60,8 +60,7 @@ namespace CinemaBL
                 Id = r.Id,
                 MaxStdSeat = r.MaxStdSeat,
                 MaxVipSeat = r.MaxVipSeat,
-                RoomName = r.RoomName,
-                UpgradeVipPrice = r.UpgradeVipPrice                
+                RoomName = r.RoomName,      
             };
         }
 
@@ -115,7 +114,6 @@ namespace CinemaBL
                 cr.MaxStdSeat = cRoom.MaxStdSeat;
                 cr.MaxVipSeat = cRoom.MaxVipSeat;
                 cr.RoomName = cRoom.RoomName;
-                cr.UpgradeVipPrice = cRoom.UpgradeVipPrice;
                 
                 _uow.GetCinemaRoomRep.Update(cr);
                 return CrudCinemaEnum.UPDATED;
@@ -224,8 +222,7 @@ namespace CinemaBL
             {
                 MaxStdSeat = cRoom.MaxStdSeat,
                 MaxVipSeat = cRoom.MaxVipSeat,
-                RoomName = cRoom.RoomName,
-                UpgradeVipPrice = cRoom.UpgradeVipPrice                
+                RoomName = cRoom.RoomName,           
             };
 
             _uow.GetCinemaRoomRep.Insert(cr);

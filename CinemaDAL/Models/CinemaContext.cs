@@ -21,8 +21,6 @@ public partial class CinemaContext : DbContext
 
     public virtual DbSet<Customer> Customers { get; set; }
 
-    public virtual DbSet<CustomerCrossMovieSchedule> CustomerCrossMovieSchedules { get; set; }
-
     public virtual DbSet<JobEmployeeQualification> JobEmployeeQualifications { get; set; }
 
     public virtual DbSet<Movie> Movies { get; set; }
@@ -30,6 +28,8 @@ public partial class CinemaContext : DbContext
     public virtual DbSet<MovieSchedule> MovieSchedules { get; set; }
 
     public virtual DbSet<Projection> Projections { get; set; }
+
+    public virtual DbSet<Ticket> Tickets { get; set; }
 
     public virtual DbSet<UserEmployee> UserEmployees { get; set; }
 
@@ -64,10 +64,6 @@ public partial class CinemaContext : DbContext
                 .IsUnicode(false)
                 .HasComment("Nome della sala")
                 .HasColumnName("roomName");
-            entity.Property(e => e.UpgradeVipPrice)
-                .HasComment("percentuale di maggiorazione del prezzo VIP rispetto al prezzo standard")
-                .HasColumnType("decimal(4, 2)")
-                .HasColumnName("upgradeVipPrice");
         });
 
         modelBuilder.Entity<CinemaRoomCrossUserEmployee>(entity =>
@@ -112,34 +108,6 @@ public partial class CinemaContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("surname");
-        });
-
-        modelBuilder.Entity<CustomerCrossMovieSchedule>(entity =>
-        {
-            entity.ToTable("CustomerCrossMovieSchedule", tb => tb.HasComment("tiene traccia dei film che un customer ha prenotato"));
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.CommentNote)
-                .HasMaxLength(1000)
-                .IsUnicode(false)
-                .HasComment("Commento sul film")
-                .HasColumnName("commentNote");
-            entity.Property(e => e.CustomerId).HasColumnName("customerId");
-            entity.Property(e => e.MovieScheduleId).HasColumnName("movieScheduleId");
-            entity.Property(e => e.Rate)
-                .HasComment("Valurazione del film")
-                .HasColumnName("rate");
-            entity.Property(e => e.Ticket).HasColumnName("ticket");
-
-            entity.HasOne(d => d.Customer).WithMany(p => p.CustomerCrossMovieSchedules)
-                .HasForeignKey(d => d.CustomerId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK_CustomerCrossMovieSchedule_Customer");
-
-            entity.HasOne(d => d.MovieSchedule).WithMany(p => p.CustomerCrossMovieSchedules)
-                .HasForeignKey(d => d.MovieScheduleId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK_CustomerCrossMovieSchedule_MovieSchedule");
         });
 
         modelBuilder.Entity<JobEmployeeQualification>(entity =>
@@ -217,9 +185,6 @@ public partial class CinemaContext : DbContext
                 .HasComment("1 se è stato approvato dall'Admin")
                 .HasColumnName("isApproved");
             entity.Property(e => e.MovieId).HasColumnName("movieId");
-            entity.Property(e => e.Price)
-                .HasColumnType("money")
-                .HasColumnName("price");
             entity.Property(e => e.StartDate)
                 .HasDefaultValueSql("([dbo].[GetMinDate]())")
                 .HasColumnType("datetime")
@@ -231,10 +196,6 @@ public partial class CinemaContext : DbContext
                 .HasComment("dominio:\r\nWAITING --> deve ancora iniziare\r\nIN_PROGRESS --> è in corso di visione\r\nCLEAN_TIME --> è finito e stanno facendo le pulizie\r\nDONE --> finito e sala liberata, include i 10 min extra film\r\n\r\nutile per semplificare i filtri, aggiornata dal BGW")
                 .HasColumnName("status");
             entity.Property(e => e.StdSeat).HasColumnName("stdSeat");
-            entity.Property(e => e.VipPrice)
-                .HasComputedColumnSql("([dbo].[GetUpgradedPrice]([cinemaRoomId],[price]))", false)
-                .HasColumnType("money")
-                .HasColumnName("vipPrice");
             entity.Property(e => e.VipSeat).HasColumnName("vipSeat");
 
             entity.HasOne(d => d.CinemaRoom).WithMany(p => p.MovieSchedules)
@@ -267,6 +228,39 @@ public partial class CinemaContext : DbContext
             entity.HasOne(d => d.CinemaRoom).WithMany(p => p.Projections)
                 .HasForeignKey(d => d.CinemaRoomId)
                 .HasConstraintName("FK_Projection_ToTable");
+        });
+
+        modelBuilder.Entity<Ticket>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_CustomerCrossMovieSchedule");
+
+            entity.ToTable("Ticket", tb => tb.HasComment("tiene traccia dei biglietti emessi\r\ncon l'informazione dei film che un customer ha comprato\r\n"));
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.CommentNote)
+                .HasMaxLength(1000)
+                .IsUnicode(false)
+                .HasComment("Commento sul film")
+                .HasColumnName("commentNote");
+            entity.Property(e => e.CustomerId).HasColumnName("customerId");
+            entity.Property(e => e.MovieScheduleId).HasColumnName("movieScheduleId");
+            entity.Property(e => e.Price)
+                .HasComment("è il prezzo del biglietto che eventualmente potrebbe essere maggiorato per vip")
+                .HasColumnType("money")
+                .HasColumnName("price");
+            entity.Property(e => e.Rate)
+                .HasComment("Valurazione del film")
+                .HasColumnName("rate");
+
+            entity.HasOne(d => d.Customer).WithMany(p => p.Tickets)
+                .HasForeignKey(d => d.CustomerId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_CustomerCrossMovieSchedule_Customer");
+
+            entity.HasOne(d => d.MovieSchedule).WithMany(p => p.Tickets)
+                .HasForeignKey(d => d.MovieScheduleId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_CustomerCrossMovieSchedule_MovieSchedule");
         });
 
         modelBuilder.Entity<UserEmployee>(entity =>

@@ -17,5 +17,5 @@ public partial class Customer
 
     public string? Password { get; set; }
 
-    public virtual ICollection<CustomerCrossMovieSchedule> CustomerCrossMovieSchedules { get; set; } = new List<CustomerCrossMovieSchedule>();
+    public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
 }

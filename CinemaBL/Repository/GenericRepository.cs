@@ -118,7 +118,7 @@ namespace CinemaBL.Repository
     {
         public CinemaRoomRep(CinemaContext context) : base(context) { }
 
-        
+
 
         public bool GetByIdAndFillMovieSchedule(int id, out CinemaRoom cr)
         {
@@ -126,7 +126,7 @@ namespace CinemaBL.Repository
 
             cr = context.CinemaRooms.Include(x => x.MovieSchedules).FirstOrDefault(x => x.Id == id);
             if (cr == null)
-            { 
+            {
                 return false;
             }
 
@@ -156,6 +156,8 @@ namespace CinemaBL.Repository
     public class MovieRep : GenericRepository<Movie>
     {
         public MovieRep(CinemaContext context) : base(context) { }
+
+
     }
     public class MovieScheduleRep : GenericRepository<MovieSchedule>
     {
@@ -173,6 +175,15 @@ namespace CinemaBL.Repository
     public class WeekCalendarRep : GenericRepository<WeekCalendar>
     {
         public WeekCalendarRep(CinemaContext context) : base(context) { }
+
+        public DateTime OpeningInTheDateChoised( DateTime dayChoised)
+        {
+            var x = context.WeekCalendars.Find((int)dayChoised.DayOfWeek);
+            DateTime dtOperturaDelGiornoScelto = new DateTime(dayChoised.Year, dayChoised.Month, dayChoised.Day).Add(x.StartTime);
+
+            return dtOperturaDelGiornoScelto;
+        }
+
     }
 
     public class UserEmployeeRep : GenericRepository<UserEmployee>
@@ -203,7 +214,7 @@ namespace CinemaBL.Repository
             // CARICAMENTO della relazione:
             var x = context.UserEmployees.Include(x => x.JobQualification).FirstOrDefault(x => x.Id == userEmployeeId);
             if (x is null)
-            { 
+            {
                 return false;
             }
 
