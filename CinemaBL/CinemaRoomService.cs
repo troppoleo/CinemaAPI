@@ -88,7 +88,7 @@ namespace CinemaBL
         public CrudCinemaEnum Update(CinemaRoomDTO cRoom)
         {
             if (_uow.GetCinemaRoomRep.GetByIdAndFillMovieSchedule(cRoom.Id, out var cr2))
-            {
+            {                
                 // verifico se il film è stato schedulato 
                 // e se stanno cercando di cambiare il numero di posti vip
                 if (cr2.MovieSchedules.Count > 0

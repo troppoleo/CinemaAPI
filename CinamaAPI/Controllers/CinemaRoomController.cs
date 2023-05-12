@@ -75,7 +75,7 @@ namespace CinemaAPI.Controllers
         ///         in quella sala o Il numero e il nome (facoltativo) devono essere unici
         ///	Il numero può essere cambiato ma non può essere< 1 
         [HttpPatch]
-        [Route("Update")]
+        [Route("Update"), AllowAnonymous]
         public ActionResult<string> Update([FromBody] CinemaDTO.CinemaRoomDTO cc)
         {
             return _cr.Update(cc).ToString();
