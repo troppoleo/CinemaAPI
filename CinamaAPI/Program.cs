@@ -128,13 +128,11 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// gestione delle eccezioni
-app.MyCatchException();
-
 // salvataggi a DB:
 app.MySaveChangeOnDB();
 
-
+// gestione delle eccezioni
+app.MyCatchException();
 
 app.Run();
 /*

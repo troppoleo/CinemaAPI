@@ -21,6 +21,16 @@ namespace CinemaBL.Enums
         /// </summary>
         VIOLATION_MINIMUM_REQUIRED
     }
+    
+
+    /// <summary>
+    /// serve per idenfiticare se un film è stato approvato
+    /// </summary>
+    public enum MovieApprovedStatusEnum
+    { 
+        IS_APPROVED = 1,
+        IS_NOT_APPROVED = 0
+    }
 
     public enum JobEmployeeQualificationEnum
     {

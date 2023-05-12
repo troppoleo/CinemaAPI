@@ -26,14 +26,32 @@ namespace CinemaBL.Extension
             return s;
         }
 
-        //public static int ToDefault(this int? i)
-        //{
-        //    if (!i.HasValue)
-        //    { 
-        //        return i.ToDefault(i.Value);
-        //    }
-        //    return i.Value;
+        //public static TEnum ToEnum<TEnum>(this string s)
+        //{            
+        //    return (TEnum)Enum.Parse(typeof(TEnum), s, true);
         //}
+
+        public static TEnum? ToEnum<TEnum>(this string? s)
+        {
+            if (s == null)
+            {
+                return default(TEnum);
+            }
+
+            return (TEnum)Enum.Parse(typeof(TEnum), s, true);
+        }
+
+
+        public static TEnum? ToEnum<TEnum>(this int? i)
+        {
+            if (!i.HasValue)
+            {
+                return default(TEnum);
+            }
+
+            return (TEnum)Enum.ToObject(typeof(TEnum), i);
+        }
+
         public static int ToDefault(this int? i)
         { 
             if (i is null)

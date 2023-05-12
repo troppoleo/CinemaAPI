@@ -9,7 +9,7 @@ namespace CinemaDAL.Models;
 /// </summary>
 public partial class WeekCalendar
 {
-    public int? Id { get; set; }
+    public int Id { get; set; }
 
     public string? DayName { get; set; }
 

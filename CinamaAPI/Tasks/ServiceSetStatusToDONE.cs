@@ -35,15 +35,16 @@ namespace CinemaAPI.Tasks
             var ctx = scope.ServiceProvider.GetRequiredService<CinemaContext>();
 
             // now do your work
-            var scheduledMoveToCheck = ctx.MovieSchedules.Where(x => x.Status != CinemaBL.Enums.MovieScheduleEnum.DONE.ToString());
+            var scheduledMoveToCheck = ctx.MovieSchedules.Include(x => x.Movie).Where(x => x.Status != CinemaBL.Enums.MovieScheduleEnum.DONE.ToString());
             foreach (var sm in scheduledMoveToCheck)
-            {
-                if (CheckIfMovieIsDone(sm, ctx))
+            {                
+                if (CheckIfMovieIsDone(sm))
                 {
                     sm.Status = CinemaBL.Enums.MovieScheduleEnum.DONE.ToString();
                     ctx.MovieSchedules.Update(sm);
                 }
             }
+            
             ctx.SaveChanges();
         }
 
@@ -53,9 +54,10 @@ namespace CinemaAPI.Tasks
         /// <param name="sm"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        private bool CheckIfMovieIsDone(MovieSchedule sm, CinemaContext ctx)
+        private bool CheckIfMovieIsDone(MovieSchedule sm)
         {
-            int duration = ctx.Movies.Where(x => x.Id == sm.MovieId).FirstOrDefault().Duration.Value;
+            //int duration = ctx.Movies.Where(x => x.Id == sm.MovieId).FirstOrDefault().Duration.Value;
+            int duration = sm.Movie.Duration.Value;
             DateTime dtEndMovie = sm.StartDate.Value.AddMinutes(duration).AddMinutes(int.Parse(_conf["Generic:CleaninigTime"]));
 
             if (dtEndMovie >= DateTime.Now)

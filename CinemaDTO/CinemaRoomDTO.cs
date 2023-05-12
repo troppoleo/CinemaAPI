@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 namespace CinemaDTO
 {
     
+
     public class CinemaRoomForInsertDTO
     {
         
@@ -19,12 +20,12 @@ namespace CinemaDTO
         /// <summary>
         /// numero di posti VIP assegnati
         /// </summary>
-        public int? VipSeat { get; set; }
+        //public int? VipSeat { get; set; }
 
         /// <summary>
         /// numero di posto standard assegnati
         /// </summary>
-        public int? StdSeat { get; set; }
+        //public int? StdSeat { get; set; }
 
         /// <summary>
         /// massimo numero di posti VIP
@@ -41,6 +42,16 @@ namespace CinemaDTO
         /// </summary>
         public decimal? UpgradeVipPrice { get; set; }
 
+    }
+
+
+    /// <summary>
+    /// per la creazione di una sala con il responsabile di sala (requisito per la creazione di una sala)
+    /// </summary>
+    public class CinemaRoomForInsertWithOwnDTO: CinemaRoomForInsertDTO
+    {
+        public int userEmployeeId { get; set; }
+        //public int cinemaRoomId { get; set; }
     }
 
     public class CinemaRoomDTO : CinemaRoomForInsertDTO

@@ -38,19 +38,33 @@ namespace CinemaAPI.Controllers
         /// </summary>
         /// <param name="cc"></param>
         /// <returns></returns>
+        //[HttpPost]
+        //[Route("Insert")]
+        //public IActionResult Insert(CinemaDTO.CinemaRoomForInsertDTO cc)
+        //{
+        //    return Ok(_cr.Insert(cc).ToString());
+        //}
+
+
+        /// <summary>
+        /// crea una sala con il responsabile di sala
+        /// </summary>
+        /// <param name="cc"></param>
+        /// <returns></returns>
         [HttpPost]
-        [Route("Insert")]
-        public IActionResult Insert(CinemaDTO.CinemaRoomForInsertDTO cc)
+        [Route("InsertWithOwn"), AllowAnonymous]
+        public IActionResult InsertWithOwn(CinemaDTO.CinemaRoomForInsertWithOwnDTO cc)
         {
-            return Ok(_cr.Insert(cc).ToString());
+            return Ok(_cr.InsertWithOwn(cc).ToString());
         }
+
 
         /// <summary>
         /// Una sala NON può essere eliminata se c’è un film programmato in quella sala 
         /// Se viene eliminata, il Responsabile di Sala NON viene eliminato ma rimane “libero”  
         /// </summary>
         [HttpDelete]
-        [Route("Delete/{id}")]
+        [Route("Delete/{id}"), AllowAnonymous]
         public ActionResult<string> Delete(int id)
         {
             return _cr.Delete(id).ToString();

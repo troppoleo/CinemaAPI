@@ -51,6 +51,8 @@ public partial class CinemaContext : DbContext
 
             entity.ToTable("CinemaRoom", tb => tb.HasComment("tabelle delle \"sale cinema\", utile per associare un employee alle sale cinema"));
 
+            entity.HasIndex(e => e.RoomName, "AK_roomName").IsUnique();
+
             entity.Property(e => e.MaxStdSeat)
                 .HasComment("Massimo numero di posto standard")
                 .HasColumnName("maxStdSeat");
@@ -62,18 +64,10 @@ public partial class CinemaContext : DbContext
                 .IsUnicode(false)
                 .HasComment("Nome della sala")
                 .HasColumnName("roomName");
-            entity.Property(e => e.StdSeat)
-                .HasDefaultValueSql("((0))")
-                .HasComment("numero di posto standard assegnati")
-                .HasColumnName("stdSeat");
             entity.Property(e => e.UpgradeVipPrice)
                 .HasComment("percentuale di maggiorazione del prezzo VIP rispetto al prezzo standard")
-                .HasColumnType("decimal(10, 10)")
+                .HasColumnType("decimal(4, 2)")
                 .HasColumnName("upgradeVipPrice");
-            entity.Property(e => e.VipSeat)
-                .HasDefaultValueSql("((0))")
-                .HasComment("numero di posti VIP assegnati")
-                .HasColumnName("vipSeat");
         });
 
         modelBuilder.Entity<CinemaRoomCrossUserEmployee>(entity =>
@@ -86,6 +80,7 @@ public partial class CinemaContext : DbContext
 
             entity.HasOne(d => d.CinemaRoom).WithMany(p => p.CinemaRoomCrossUserEmployees)
                 .HasForeignKey(d => d.CinemaRoomId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_CinemaRoomCrossUserEmployee_CinemaRoom");
 
             entity.HasOne(d => d.UserEmployee).WithMany(p => p.CinemaRoomCrossUserEmployees)
@@ -344,10 +339,11 @@ public partial class CinemaContext : DbContext
 
         modelBuilder.Entity<WeekCalendar>(entity =>
         {
-            entity
-                .HasNoKey()
-                .ToTable("WeekCalendar", tb => tb.HasComment("contiene i giorni della settimana con le fasce di apertura\r\n"));
+            entity.ToTable("WeekCalendar", tb => tb.HasComment("contiene i giorni della settimana con le fasce di apertura\r\n"));
 
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnName("id");
             entity.Property(e => e.DayName)
                 .HasMaxLength(20)
                 .IsUnicode(false)
@@ -355,7 +351,6 @@ public partial class CinemaContext : DbContext
             entity.Property(e => e.EndTime)
                 .HasPrecision(0)
                 .HasColumnName("endTIme");
-            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.StartTime)
                 .HasPrecision(0)
                 .HasColumnName("startTime");

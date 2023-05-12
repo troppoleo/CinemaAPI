@@ -1,10 +1,13 @@
-﻿using CinemaDAL.Models;
+﻿using CinemaBL.Extension;
+using CinemaDAL.Models;
 using CinemaDTO;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net.WebSockets;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -55,6 +58,33 @@ namespace CinemaBL.Repository
             return dbSet.Find(id);
         }
 
+
+        /// <summary>
+        /// Aggiunto per gestire i null
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public virtual bool GetByID(object id, out TEntity entity)
+        {
+            entity = GetByID(id);
+            if (entity == null)
+                return false;
+            return true;
+        }
+
+
+        public virtual bool Exists(Expression<Func<TEntity, bool>> filter = null)
+        {
+            return Get(filter).Any();
+        }
+
+        public virtual bool NotExists(Expression<Func<TEntity, bool>> filter = null)
+        {
+            return !Exists(filter);
+        }
+
+
         public virtual void Insert(TEntity entity)
         {
             dbSet.Add(entity);
@@ -84,9 +114,25 @@ namespace CinemaBL.Repository
         #endregion
     }
 
-    public class CinemaRoomRep: GenericRepository<CinemaRoom>
+    public class CinemaRoomRep : GenericRepository<CinemaRoom>
     {
         public CinemaRoomRep(CinemaContext context) : base(context) { }
+
+        
+
+        public bool GetByIdAndFillMovieSchedule(int id, out CinemaRoom cr)
+        {
+            //            var x = context.UserEmployees.Include(x => x.JobQualification).FirstOrDefault(x => x.Id == userEmployeeId);
+
+            cr = context.CinemaRooms.Include(x => x.MovieSchedules).FirstOrDefault(x => x.Id == id);
+            if (cr == null)
+            { 
+                return false;
+            }
+
+            return true;
+
+        }
     }
 
     public class CinemaRoomCrossUserEmployeeRep : GenericRepository<CinemaRoomCrossUserEmployee>
@@ -144,6 +190,42 @@ namespace CinemaBL.Repository
 
             dbSet.Add(ue);
         }
+
+
+
+        /// <summary>
+        /// verifica se si tratta di un resposnsabile di sala
+        /// </summary>
+        /// <param name="userEmployeeId"></param>
+        /// <returns></returns>
+        public bool IsOwnSala(int userEmployeeId)
+        {
+            // CARICAMENTO della relazione:
+            var x = context.UserEmployees.Include(x => x.JobQualification).FirstOrDefault(x => x.Id == userEmployeeId);
+            if (x is null)
+            { 
+                return false;
+            }
+
+            //switch (x.JobQualification.ShortDescr.ToEnum<Enums.JobEmployeeQualificationEnum>())
+            //{
+            //    case Enums.JobEmployeeQualificationEnum.OWN_SALA:
+            //        return true;
+            //    default:
+            //        return false;
+            //}
+
+            // soluzione proposta da VS ma incomprensibile:
+            return x.JobQualification.ShortDescr.ToEnum<Enums.JobEmployeeQualificationEnum>() switch
+            {
+                Enums.JobEmployeeQualificationEnum.OWN_SALA => true,
+                _ => false,
+            };
+
+            //var result = x.JobQualification.ShortDescr.ToEnum<Enums.JobEmployeeQualificationEnum>() == Enums.JobEmployeeQualificationEnum.OWN_SALA;
+            //return result;
+        }
+
 
     }
 

@@ -16,16 +16,6 @@ public partial class CinemaRoom
     public string? RoomName { get; set; }
 
     /// <summary>
-    /// numero di posti VIP assegnati
-    /// </summary>
-    public int? VipSeat { get; set; }
-
-    /// <summary>
-    /// numero di posto standard assegnati
-    /// </summary>
-    public int? StdSeat { get; set; }
-
-    /// <summary>
     /// massimo numero di posti VIP
     /// </summary>
     public int? MaxVipSeat { get; set; }

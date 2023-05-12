@@ -1,4 +1,5 @@
 ﻿using CinemaBL.Enums;
+using CinemaBL.Extension;
 using CinemaBL.Repository;
 using CinemaDAL.Models;
 using CinemaDTO;
@@ -18,6 +19,7 @@ namespace CinemaBL
         IEnumerable<CinemaRoomDTO> GetAll();
         CinemaRoomDTO? GetByID(int id);
         CrudCinemaEnum Insert(CinemaRoomForInsertDTO cRoom);
+        CrudCinemaEnum InsertWithOwn(CinemaRoomForInsertWithOwnDTO cc);
         CrudCinemaEnum Update(CinemaRoomDTO cRoom);
     }
 
@@ -59,56 +61,73 @@ namespace CinemaBL
                 MaxStdSeat = r.MaxStdSeat,
                 MaxVipSeat = r.MaxVipSeat,
                 RoomName = r.RoomName,
-                StdSeat = r.StdSeat,
-                UpgradeVipPrice = r.UpgradeVipPrice,
-                VipSeat = r.VipSeat
+                UpgradeVipPrice = r.UpgradeVipPrice                
             };
         }
 
-        public CrudCinemaEnum Insert(CinemaRoomForInsertDTO cRoom)
-        {
-            if (_uow.GetCinemaRoomRep.Get(x => x.RoomName == cRoom.RoomName) == null)
-            {
-                CinemaRoom cr = new CinemaRoom()
-                {
-                    MaxStdSeat = cRoom.MaxStdSeat,
-                    MaxVipSeat = cRoom.MaxVipSeat,
-                    RoomName = cRoom.RoomName,
-                    StdSeat = cRoom.StdSeat,
-                    UpgradeVipPrice = cRoom.UpgradeVipPrice,
-                    VipSeat = cRoom.VipSeat
-                };
 
-                _uow.GetCinemaRoomRep.Insert(cr);
-                return CrudCinemaEnum.CREATED;
-            }
+        //public CrudCinemaEnum Update(CinemaRoomDTO cRoom)
+        //{
+        //    var cr = _uow.GetCinemaRoomRep.GetByID(cRoom.Id);
+        //    if (cr is null)
+        //    {
+        //        return CrudCinemaEnum.NOT_FOUND;
+        //    }
 
-            return CrudCinemaEnum.ALREADY_EXISTS;
-        }
+        //    cr.MaxStdSeat = cRoom.MaxStdSeat;
+        //    cr.MaxVipSeat = cRoom.MaxVipSeat;
+        //    cr.RoomName = cRoom.RoomName;
+        //    cr.StdSeat = cRoom.StdSeat;
+        //    cr.UpgradeVipPrice = cRoom.UpgradeVipPrice;
+        //    cr.VipSeat = cRoom.VipSeat;
+
+        //    _uow.GetCinemaRoomRep.Update(cr);
+        //    return CrudCinemaEnum.UPDATED;
+        //}
 
         public CrudCinemaEnum Update(CinemaRoomDTO cRoom)
         {
-            var cr = _uow.GetCinemaRoomRep.GetByID(cRoom.Id);
-            if (cr is null)
+            if (_uow.GetCinemaRoomRep.GetByIdAndFillMovieSchedule(cRoom.Id, out var cr2))
             {
-                return CrudCinemaEnum.NOT_FOUND;
+                // verifico se il film è stato schedulato 
+                // e se stanno cercando di cambiare il numero di posti vip
+                if (cr2.MovieSchedules.Count > 0
+                    && cr2.MovieSchedules.Any(x => x.IsApproved.ToEnum<MovieApprovedStatusEnum>() == MovieApprovedStatusEnum.IS_APPROVED)
+                    && cr2.MaxVipSeat != cRoom.MaxVipSeat)
+                {
+                    return CrudCinemaEnum.VIOLATION_MINIMUM_REQUIRED;
+                }
             }
 
-            cr.MaxStdSeat = cRoom.MaxStdSeat;
-            cr.MaxVipSeat = cRoom.MaxVipSeat;
-            cr.RoomName = cRoom.RoomName;
-            cr.StdSeat = cRoom.StdSeat;
-            cr.UpgradeVipPrice = cRoom.UpgradeVipPrice;
-            cr.VipSeat = cRoom.VipSeat;
+            if (_uow.GetCinemaRoomRep.GetByID(cRoom.Id, out var cr))
+            {
+                /// I posti, posti vip ecc, possono essere modificati solo quando non ci sono in programma film approvati in quella sala 
+                ///     Il numero e il nome (facoltativo) devono essere unici
+                /// 	Il numero può essere cambiato ma non può essere < 1 
 
-            _uow.GetCinemaRoomRep.Update(cr);
-            return CrudCinemaEnum.UPDATED;
+                // controllo se il la sala è impegnata in una schedulazione in cui c'è l'approvazione
+                //if (_uow.GetMovieScheduleRep.Get(x => x.CinemaRoomId ))
+                //cr.MovieSchedules
+                //if (_uow.GetCinemaRoomRep.HasScheduledApprovedMovie(cr.))
+                //{ 
+                //}
+
+                cr.MaxStdSeat = cRoom.MaxStdSeat;
+                cr.MaxVipSeat = cRoom.MaxVipSeat;
+                cr.RoomName = cRoom.RoomName;
+                cr.UpgradeVipPrice = cRoom.UpgradeVipPrice;
+                
+                _uow.GetCinemaRoomRep.Update(cr);
+                return CrudCinemaEnum.UPDATED;
+            }
+
+            return CrudCinemaEnum.NOT_FOUND;
         }
 
 
         public CrudCinemaEnum Delete(int idCinemaRoom)
         {
-            
+
             var cr = _uow.GetCinemaRoomRep.GetByID(idCinemaRoom);
             if (cr is null)
             {
@@ -116,12 +135,14 @@ namespace CinemaBL
             }
 
             ///	Una sala NON può essere eliminata se c’è un film programmato in quella sala 
-            if (_uow.GetMovieScheduleRep.GetByID(idCinemaRoom).Status != MovieScheduleEnum.DONE.ToString())
+            ///	prima verifico se c'è una schedulazione:            
+            if (_uow.GetMovieScheduleRep.GetByID(idCinemaRoom, out var entity))
             {
-                return CrudCinemaEnum.VIOLATION_MINIMUM_REQUIRED;
+                if (entity.Status.ToEnum<MovieScheduleEnum>() != MovieScheduleEnum.DONE)
+                {
+                    return CrudCinemaEnum.VIOLATION_MINIMUM_REQUIRED;
+                }
             }
-
-            
 
             _uow.GetCinemaRoomRep.Delete(cr);
             return CrudCinemaEnum.DELETED;
@@ -138,6 +159,84 @@ namespace CinemaBL
                 default:
                     return false;
             }
+        }
+
+        public CrudCinemaEnum Insert(CinemaRoomForInsertDTO cRoom)
+        {
+            if (InsertCinemaRoom(cRoom) is null)
+            {
+                return CrudCinemaEnum.ALREADY_EXISTS;
+            }
+            return CrudCinemaEnum.CREATED;
+        }
+
+
+        private CrudCinemaEnum InsertCinemaRoomCrossUserEmployee(CinemaRoomForInsertWithOwnDTO cRoom)
+        {
+            /// Per creare una sala serve un Responsabile di Sala da associare (uno solo per sala) 
+            ///     Non può esserci lo stesso Responsabile di Sala per più sale
+            ///     
+
+            // controllo che l''id fornito sia di un responsabile di sala
+            if (!_uow.GetUserEmployeeRep.IsOwnSala(cRoom.userEmployeeId))
+            {
+                return CrudCinemaEnum.VIOLATION_MINIMUM_REQUIRED;
+            }
+
+            ///     Non può esserci lo stesso Responsabile di Sala per più sale
+            //if (_uow.GetCinemaRoomCrossUserEmployeeRep.Get(x => x.UserEmployeeId == cRoom.userEmployeeId).Any())
+            //{
+            //    return CrudCinemaEnum.VIOLATION_MINIMUM_REQUIRED;
+            //}
+
+            ///     Non può esserci lo stesso Responsabile di Sala per più sale
+            if (_uow.GetCinemaRoomCrossUserEmployeeRep.Exists(x => x.UserEmployeeId == cRoom.userEmployeeId))
+            {
+                return CrudCinemaEnum.VIOLATION_MINIMUM_REQUIRED;
+            }
+
+            var cr = InsertCinemaRoom(cRoom);
+            if (cr == null)
+            {
+                return CrudCinemaEnum.ALREADY_EXISTS;
+            }
+
+            CinemaRoomCrossUserEmployee cross = new CinemaRoomCrossUserEmployee()
+            {
+                //https://stackoverflow.com/questions/5212751/how-can-i-retrieve-id-of-inserted-entity-using-entity-framework
+                CinemaRoom = cr,    // fornendo l'oggetto che è FK quando vengono fatte le insert verranno popolate automaticamente le identity
+                UserEmployeeId = cRoom.userEmployeeId
+            };
+            _uow.GetCinemaRoomCrossUserEmployeeRep.Insert(cross);
+
+            return CrudCinemaEnum.CREATED;
+        }
+
+
+        private CinemaRoom? InsertCinemaRoom(CinemaRoomForInsertDTO cRoom)
+        {
+            if (_uow.GetCinemaRoomRep.Get(x => x.RoomName == cRoom.RoomName).Any())
+            {
+                return null;
+            }
+
+            CinemaRoom cr = new CinemaRoom()
+            {
+                MaxStdSeat = cRoom.MaxStdSeat,
+                MaxVipSeat = cRoom.MaxVipSeat,
+                RoomName = cRoom.RoomName,
+                UpgradeVipPrice = cRoom.UpgradeVipPrice                
+            };
+
+            _uow.GetCinemaRoomRep.Insert(cr);
+            return cr;
+        }
+
+
+
+        public CrudCinemaEnum InsertWithOwn(CinemaRoomForInsertWithOwnDTO cc)
+        {
+            return InsertCinemaRoomCrossUserEmployee(cc);
         }
     }
 
