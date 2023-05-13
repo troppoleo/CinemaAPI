@@ -37,6 +37,8 @@ public partial class CinemaContext : DbContext
 
     public virtual DbSet<UsersAdmin> UsersAdmins { get; set; }
 
+    public virtual DbSet<ViewReview> ViewReviews { get; set; }
+
     public virtual DbSet<WeekCalendar> WeekCalendars { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -329,6 +331,23 @@ public partial class CinemaContext : DbContext
             entity.Property(e => e.UserName)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<ViewReview>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("View_Review");
+
+            entity.Property(e => e.CommentNote)
+                .HasMaxLength(1000)
+                .IsUnicode(false)
+                .HasColumnName("commentNote");
+            entity.Property(e => e.FilmName)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("filmName");
+            entity.Property(e => e.Rate).HasColumnName("rate");
         });
 
         modelBuilder.Entity<WeekCalendar>(entity =>

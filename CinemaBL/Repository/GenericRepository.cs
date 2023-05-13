@@ -1,4 +1,5 @@
 ﻿using CinemaBL.Extension;
+using CinemaBL.Paging;
 using CinemaDAL.Models;
 using CinemaDTO;
 using Microsoft.EntityFrameworkCore;
@@ -172,11 +173,41 @@ namespace CinemaBL.Repository
     {
         public UserTypeRep(CinemaContext context) : base(context) { }
     }
+
+
+    public class TicketRep : GenericRepository<Ticket>
+    {
+        public TicketRep(CinemaContext context) : base(context) { }
+
+        //internal IEnumerable<RateReviewDTO> GetPage(PaginationFilter pf)
+        //{
+        //    //context.Tickets.Include(x=> x.MovieSchedule)
+        //    return null;
+        //}
+    }
+
+    public class ViewReviewRep : GenericRepository<ViewReview>
+    {
+        public ViewReviewRep(CinemaContext context) : base(context) { }
+
+        internal IEnumerable<ViewReview> GetPage(PaginationFilter pf)
+        {
+            if (string.IsNullOrEmpty(pf.FilmName))
+            {
+                return Get().Skip((pf.PageNumber - 1) * pf.PageSize).Take(pf.PageSize);
+            }
+
+            return Get(x => x.FilmName.ToLower() == pf.FilmName)
+                .Skip((pf.PageNumber - 1) * pf.PageSize).Take(pf.PageSize);
+        }
+    }
+
+
     public class WeekCalendarRep : GenericRepository<WeekCalendar>
     {
         public WeekCalendarRep(CinemaContext context) : base(context) { }
 
-        public DateTime OpeningInTheDateChoised( DateTime dayChoised)
+        public DateTime OpeningInTheDateChoised(DateTime dayChoised)
         {
             var x = context.WeekCalendars.Find((int)dayChoised.DayOfWeek);
             DateTime dtOperturaDelGiornoScelto = new DateTime(dayChoised.Year, dayChoised.Month, dayChoised.Day).Add(x.StartTime);

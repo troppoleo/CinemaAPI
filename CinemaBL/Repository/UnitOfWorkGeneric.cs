@@ -22,6 +22,8 @@ namespace CinemaBL.Repository
         UsersAdminRep GetUsersAdminRep { get; }
         UserTypeRep GetUserTypeRep { get; }
         WeekCalendarRep GetWeekCalendarRep { get; }
+        TicketRep GetTicketRep { get; }
+        ViewReviewRep GetViewReviewRep { get; }
 
         void Dispose();
         void Save();
@@ -42,6 +44,8 @@ namespace CinemaBL.Repository
         private UsersAdminRep usersAdminRep;
         private UserTypeRep userTypeRep;
         private WeekCalendarRep weekCalendarRep;
+        private TicketRep ticketRep;
+        private ViewReviewRep viewReviewRep;
 
         public CinemaRoomRep GetCinemaRoomRep => cinemaRoom ??= new CinemaRoomRep(context);
         public CinemaRoomCrossUserEmployeeRep GetCinemaRoomCrossUserEmployeeRep => cinemaRoomCrossUserEmployee ??= new CinemaRoomCrossUserEmployeeRep(context);
@@ -53,7 +57,8 @@ namespace CinemaBL.Repository
         public UsersAdminRep GetUsersAdminRep => usersAdminRep ??= new UsersAdminRep(context);
         public UserTypeRep GetUserTypeRep => userTypeRep ??= new UserTypeRep(context);
         public WeekCalendarRep GetWeekCalendarRep => weekCalendarRep ??= new WeekCalendarRep(context);
-
+        public TicketRep GetTicketRep => ticketRep ??= new TicketRep(context);
+        public ViewReviewRep GetViewReviewRep => viewReviewRep ??= new ViewReviewRep(context);
 
         public UserEmployeeRep GetUserEmployeeRep
         {

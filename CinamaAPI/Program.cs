@@ -30,6 +30,7 @@ builder.Services.AddTransient<IMovieService, MovieService>();
 builder.Services.AddTransient<IUserEmployeeService, UserEmployeeService>();
 builder.Services.AddTransient<IJobEmployeeQualificationService, JobEmployeeQualificationService>();
 builder.Services.AddTransient<IMovieScheduleService, MovieScheduleService>();
+builder.Services.AddTransient<IReviewService, ReviewService>();
 
 // UnitOfWork e Repository: query centralizzate nel repository:
 //builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
