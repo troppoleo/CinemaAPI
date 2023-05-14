@@ -1,0 +1,10 @@
+﻿Premessa:
+non sto usanto l'autenticazione:
+
+pagina per demo SignalR:
+https://localhost:7297/api/SeatRoom/
+
+HUB ADDRESS: (immettere l'indirizzo):
+https://localhost:7297/CinemaHub
+
+non va messo altro perchè a questo punto il client è connesso ed è pronto a ricevere i messaggi

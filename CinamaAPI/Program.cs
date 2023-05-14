@@ -1,3 +1,4 @@
+using CinemaAPI.Hubs;
 using CinemaAPI.Middleware;
 using CinemaAPI.Tasks;
 using CinemaBL;
@@ -18,7 +19,7 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 // stringa di connessione:
 builder.Services.AddDbContext<CinemaDAL.Models.CinemaContext>(x => x.UseSqlServer(builder.Configuration.GetConnectionString("connSql")));
 
-
+builder.Services.AddSignalR();
 
 // vari DI:
 builder.Services.AddTransient<IUserTypeService, UserTypeService>();
@@ -75,6 +76,11 @@ builder.Services.AddSwaggerGen(opt =>
 // TODO: RIABILITARE, ADESSO MI DA SOLO FASTIDIO
 //builder.Services.AddHostedService<ServiceSetStatusToDONE>();
 
+// BG per inviare i cambiamenti delle poltrone nelle sale:
+builder.Services.AddHostedService<ServicePushBySignalRSeatRoom>();
+
+
+
 // added
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -124,6 +130,11 @@ app.UseHttpsRedirection();
 //    }
 //}
 
+app.MapHub<CinemaHub>("/CinemaHub");
+app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins("http://localhost:8080", "https://gourav-d.github.io"));
+app.UseHttpsRedirection();
+
+
 // added: credo applichi quando scritto nel builder.Services.AddAuthentication
 app.UseAuthentication();
 
@@ -136,6 +147,7 @@ app.MySaveChangeOnDB();
 
 // gestione delle eccezioni
 app.MyCatchException();
+
 
 app.Run();
 /*
