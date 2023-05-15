@@ -16,7 +16,7 @@ namespace CinemaBL
     {
         IEnumerable<object> GetDirect(DateTime dateTime);
         CrudCinemaEnum Insert(MovieScheduleForInsertDTO ms);
-        CrudCinemaEnum Update(MovieScheduleDTO ms);
+        CrudCinemaEnum Update(MovieScheduleForUpdateDTO ms);
     }
 
     public class MovieScheduleService : IMovieScheduleService
@@ -32,7 +32,7 @@ namespace CinemaBL
 
 
 
-        public CrudCinemaEnum Update(MovieScheduleDTO ms)
+        public CrudCinemaEnum Update(MovieScheduleForUpdateDTO ms)
         {
             var sh = _uow.GetMovieScheduleRep.GetByID(ms.Id);
             if (sh != null)
@@ -43,8 +43,10 @@ namespace CinemaBL
                     sh.CinemaRoomId = ms.CinemaRoomId;
                     sh.StartDate = ms.StartDate;
                     sh.IsApproved = ms.IsApproved;
-                    sh.VipSeat = ms.VipSeat;
-                    sh.StdSeat = ms.StdSeat;
+
+                    // non ha senso che siano modificabili
+                    //sh.VipSeat = ms.VipSeat;
+                    //sh.StdSeat = ms.StdSeat;
 
                     _uow.GetMovieScheduleRep.Update(sh);
 
@@ -69,13 +71,18 @@ namespace CinemaBL
             var result = CheckSlot(ms);
             if (result == CrudCinemaEnum.CREATED)   // qui significa che si può creare non che l'ha creato
             {
+                // recupero i posti disponibili dalle proprietà della sala cinema
+                var cr = _uow.GetCinemaRoomRep.GetByID(ms.CinemaRoomId);
+
                 MovieSchedule movieSchedule = new MovieSchedule()
                 {
                     MovieId = ms.MovieId,
                     CinemaRoomId = ms.CinemaRoomId,
                     StartDate = ms.StartDate,
-                    VipSeat = ms.VipSeat,
-                    StdSeat = ms.StdSeat
+                    //VipSeat = ms.VipSeat,
+                    //StdSeat = ms.StdSeat
+                    VipSeat = cr.MaxVipSeat,
+                    StdSeat = cr.MaxStdSeat
                 };
 
                 _uow.GetMovieScheduleRep.Insert(movieSchedule);

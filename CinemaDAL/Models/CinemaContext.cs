@@ -197,8 +197,12 @@ public partial class CinemaContext : DbContext
                 .HasDefaultValueSql("('WAITING')")
                 .HasComment("dominio:\r\nWAITING --> deve ancora iniziare\r\nIN_PROGRESS --> è in corso di visione\r\nCLEAN_TIME --> è finito e stanno facendo le pulizie\r\nDONE --> finito e sala liberata, include i 10 min extra film\r\n\r\nutile per semplificare i filtri, aggiornata dal BGW")
                 .HasColumnName("status");
-            entity.Property(e => e.StdSeat).HasColumnName("stdSeat");
-            entity.Property(e => e.VipSeat).HasColumnName("vipSeat");
+            entity.Property(e => e.StdSeat)
+                .HasComment("Si intende i posti Standard rimasti")
+                .HasColumnName("stdSeat");
+            entity.Property(e => e.VipSeat)
+                .HasComment("Si intende i posti VIP rimasti")
+                .HasColumnName("vipSeat");
 
             entity.HasOne(d => d.CinemaRoom).WithMany(p => p.MovieSchedules)
                 .HasForeignKey(d => d.CinemaRoomId)

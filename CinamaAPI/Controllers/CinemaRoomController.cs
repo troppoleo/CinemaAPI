@@ -1,7 +1,9 @@
-﻿using CinemaBL;
+﻿using CinemaAPI.Hubs;
+using CinemaBL;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System.Data;
 using System.Formats.Asn1;
 
@@ -12,10 +14,12 @@ namespace CinemaAPI.Controllers
     public class CinemaRoomController : ControllerBase
     {
         private readonly ICinemaRoomService _cr;
+        private readonly INotify _nt;
 
-        public CinemaRoomController(CinemaBL.ICinemaRoomService cr)
+        public CinemaRoomController(CinemaBL.ICinemaRoomService cr, INotify nt)
         {
             _cr = cr;
+            _nt = nt;   
         }
 
         [HttpGet]
@@ -78,7 +82,13 @@ namespace CinemaAPI.Controllers
         [Route("Update"), AllowAnonymous]
         public ActionResult<string> Update([FromBody] CinemaDTO.CinemaRoomDTO cc)
         {
-            return _cr.Update(cc).ToString();
+            var result = _cr.Update(cc);
+            if (result == CinemaBL.Enums.CrudCinemaEnum.UPDATED)
+            {
+                _nt.SendMessageToOwn_SALA(cc.userEmployeeId);
+            }
+
+            return result.ToString();   
         }
 
 

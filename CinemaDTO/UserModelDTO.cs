@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CinemaDTO
 {
-    public class UserModel
+    public class UserModelDTO
     {
         public enum UserModelType
         {
@@ -15,9 +15,10 @@ namespace CinemaDTO
             CUSTOMER
         }
 
-        public string? Name { get; set; }
+        public int Id { get; set; }
+        public string? UserName { get; set; }
         public string? JobQualification { get; set; }
-        public DateTime Birthdate { get; set; }
+        //public DateTime Birthdate { get; set; }
         public UserModelType UserType { get; set; }
     }
 }

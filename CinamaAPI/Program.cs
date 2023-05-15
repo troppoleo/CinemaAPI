@@ -33,6 +33,9 @@ builder.Services.AddTransient<IJobEmployeeQualificationService, JobEmployeeQuali
 builder.Services.AddTransient<IMovieScheduleService, MovieScheduleService>();
 builder.Services.AddTransient<IReviewService, ReviewService>();
 
+// questa serve per i messaggi HUB
+builder.Services.AddTransient<INotify, Notify>();
+
 // UnitOfWork e Repository: query centralizzate nel repository:
 //builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 //builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
@@ -95,6 +98,24 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
         };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+
+                // If the request is for our hub...
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) &&
+                    (path.StartsWithSegments("/CinemaHub")))
+                {
+                    // Read the token out of the query string
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            }
+        };
     });
 
 
@@ -106,6 +127,47 @@ builder.Services.AddAuthorization(options =>
     //options.AddPolicy("CheckAge21", policy =>
     //    policy.Requirements.Add(new MinimunAgeRequirement(21)));
 });
+
+//builder.Services.AddAuthentication(options =>
+//{
+//    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+//    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+//}).AddJwtBearer(options =>
+//{
+//    // Configure the Authority to the expected value for
+//    // the authentication provider. This ensures the token
+//    // is appropriately validated.
+//    options.Authority = "Authority URL"; // TODO: Update URL
+
+//    // We have to hook the OnMessageReceived event in order to
+//    // allow the JWT authentication handler to read the access
+//    // token from the query string when a WebSocket or 
+//    // Server-Sent Events request comes in.
+
+//    // Sending the access token in the query string is required due to
+//    // a limitation in Browser APIs. We restrict it to only calls to the
+//    // SignalR hub in this code.
+//    // See https://docs.microsoft.com/aspnet/core/signalr/security#access-token-logging
+//    // for more information about security considerations when using
+//    // the query string to transmit the access token.
+//    options.Events = new JwtBearerEvents
+//    {
+//        OnMessageReceived = context =>
+//        {
+//            var accessToken = context.Request.Query["access_token"];
+
+//            // If the request is for our hub...
+//            var path = context.HttpContext.Request.Path;
+//            if (!string.IsNullOrEmpty(accessToken) &&
+//                (path.StartsWithSegments("/hubs/chat")))
+//            {
+//                // Read the token out of the query string
+//                context.Token = accessToken;
+//            }
+//            return Task.CompletedTask;
+//        }
+//    };
+//});
 
 var app = builder.Build();
 

@@ -13,7 +13,7 @@ namespace CinemaBL
 {
     public interface ITokenMng
     {
-        string BuildToken(UserModel? um, IConfiguration conf);
+        string BuildToken(UserModelDTO? um, IConfiguration conf);
     }
 
     public class TokenMng : ITokenMng
@@ -23,32 +23,35 @@ namespace CinemaBL
         {
         }
 
-        public string BuildToken(UserModel? um, IConfiguration conf)
+        public string BuildToken(UserModelDTO? um, IConfiguration conf)
         {
             List<Claim> llClaim = new List<Claim>();
             llClaim.AddRange(new[]
             {
-                new Claim(JwtRegisteredClaimNames.Name, um.Name),
+                new Claim(JwtRegisteredClaimNames.Name, um.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(nameof(um.UserName), um.UserName),
+                new Claim(nameof(um.Id), um.Id.ToString()),
                 new Claim(ClaimTypes.Role, um.UserType.ToString())
             });
 
 
             switch (um.UserType)
             {
-                case UserModel.UserModelType.ADMIN:                    
+                case UserModelDTO.UserModelType.ADMIN:                    
                     break;
 
-                case UserModel.UserModelType.EMPLOYEE:
+                case UserModelDTO.UserModelType.EMPLOYEE:
                     llClaim.AddRange(new[]
                     { 
-                        new Claim(JwtRegisteredClaimNames.Birthdate, um.Birthdate.ToString("yyyy-MM-dd")),
-                        new Claim(um.JobQualification, "true")
+                        //new Claim(JwtRegisteredClaimNames.Birthdate, um.Birthdate.ToString("yyyy-MM-dd")),
+                        new Claim(um.JobQualification, "true"),
+                        new Claim(nameof(um.JobQualification), um.JobQualification)
                     });                    
 
                     break;
 
-                case UserModel.UserModelType.CUSTOMER:
+                case UserModelDTO.UserModelType.CUSTOMER:
                     break;
                 default:
                     break;

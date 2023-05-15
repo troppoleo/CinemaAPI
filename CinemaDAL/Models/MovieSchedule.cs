@@ -24,8 +24,14 @@ public partial class MovieSchedule
     /// </summary>
     public int? IsApproved { get; set; }
 
+    /// <summary>
+    /// Si intende i posti VIP rimasti
+    /// </summary>
     public int? VipSeat { get; set; }
 
+    /// <summary>
+    /// Si intende i posti Standard rimasti
+    /// </summary>
     public int? StdSeat { get; set; }
 
     /// <summary>

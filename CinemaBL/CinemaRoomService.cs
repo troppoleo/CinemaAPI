@@ -114,6 +114,22 @@ namespace CinemaBL
                 cr.MaxStdSeat = cRoom.MaxStdSeat;
                 cr.MaxVipSeat = cRoom.MaxVipSeat;
                 cr.RoomName = cRoom.RoomName;
+
+                var crossToUpdate = _uow.GetCinemaRoomCrossUserEmployeeRep.Get(x => x.CinemaRoomId == cRoom.Id, includeProperties: nameof(UserEmployee)).FirstOrDefault();
+                
+                if (crossToUpdate != null)
+                {
+                    var crossNew = _uow.GetUserEmployeeRep.GetByID(cRoom.userEmployeeId);
+                    // aggiorno l'id dell'emplyee OWN_associato alla sala
+                    if (crossNew is null || crossNew.JobQualificationId != (int)Enums.JobEmployeeQualificationEnum.OWN_SALA)
+                    {
+                        // l'id dell'emplyee scelto non è un OWN_SALA
+                        return CrudCinemaEnum.VIOLATION_MINIMUM_REQUIRED;
+                    }
+
+                    crossToUpdate.UserEmployeeId = cRoom.userEmployeeId;
+                    _uow.GetCinemaRoomCrossUserEmployeeRep.Update(crossToUpdate);
+                }
                 
                 _uow.GetCinemaRoomRep.Update(cr);
                 return CrudCinemaEnum.UPDATED;

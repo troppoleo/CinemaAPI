@@ -221,7 +221,7 @@ namespace CinemaBL.Repository
     {
         public UserEmployeeRep(CinemaContext context) : base(context) { }
 
-        public void AddMinimal(UsersEmployeeMinimalDTO emp)
+        public void AddMinimal(UserEmployeeMinimalDTO emp)
         {
             UserEmployee ue = new UserEmployee()
             {

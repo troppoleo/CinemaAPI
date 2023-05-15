@@ -33,7 +33,7 @@ namespace CinemaBL
             _uow = uow;
         }
 
-        public void AddMinimal(UsersEmployeeMinimalDTO eee)
+        public void AddMinimal(UserEmployeeMinimalDTO eee)
         {
             _uow.GetUserEmployeeRep.AddMinimal(eee);
         }

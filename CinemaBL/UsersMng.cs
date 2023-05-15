@@ -17,12 +17,12 @@ namespace CinemaBL
 {
     public interface IUsersMng
     {
-        UserModel? Autheticate(LoginModel loginModel);
-        UsersMngEnum CreateEmployee(UsersEmployeeMinimalDTO emp);
+        UserModelDTO? Autheticate(LoginModelDTO loginModel);
+        UsersMngEnum CreateEmployee(UserEmployeeMinimalDTO emp);
         UsersMngEnum UpdateEmployee(UserEmployeeDTO emp);
         IEnumerable<UserEmployeeDTO> GetUsersEmployee();
         IEnumerable<UserEmployeeDTO> GetUsersEmployeeByUserName(string pUserName);
-        UsersMngEnum UpdateEmployeeJob(UsersEmployeeJobDTO emp);
+        UsersMngEnum UpdateEmployeeJob(UserEmployeeJobDTO emp);
         UsersMngEnum DeleteEmployeeJob(int id);
     }
 
@@ -36,47 +36,43 @@ namespace CinemaBL
         }
 
 
-        public CinemaDTO.UserModel? Autheticate(LoginModel loginModel)
+        public CinemaDTO.UserModelDTO? Autheticate(LoginModelDTO loginModel)
         {
             /// Cosa fa
             /// cerca nella varie tabelle di che tipo di utente si tratta
-            try
+
+            // verifico se è un ADMIN
+            var ua = _ctx.UsersAdmins.Where(x => x.UserName == loginModel.UserName && x.Password == loginModel.Password).FirstOrDefault();
+
+            if (ua is not null)
             {
-                // verifico se è un ADMIN
-                var ua = _ctx.UsersAdmins.Where(x => x.UserName == loginModel.UserName && x.Password == loginModel.Password).FirstOrDefault();
-
-                if (ua is not null)
+                return new UserModelDTO()
                 {
-                    return new CinemaDTO.UserModel()
-                    {
-                        Name = ua.Name,
-                        UserType = UserModel.UserModelType.ADMIN
-                    };
-                }
-
-                // verifico se è un "Employees"
-                var em = _ctx.UserEmployees
-                    .Where(x => x.UserName == loginModel.UserName && x.Password == loginModel.Password)
-                    .Include(x => x.JobQualification).FirstOrDefault();
-                if (em is not null)
-                {
-                    UserModel userModel = new UserModel();
-                    userModel.UserType = UserModel.UserModelType.EMPLOYEE;                    
-                    userModel.Name = em.Name;
-                    userModel.JobQualification = em.JobQualification.ShortDescr;
-
-                    return userModel;
-                }
-
-                // TODO: verifico se è un "CUSTOMER"             
-
-                // utente non trovato:
-                return null;
+                    UserName = ua.UserName,
+                    UserType = UserModelDTO.UserModelType.ADMIN,
+                    Id = ua.Id
+                };
             }
-            catch (Exception ex)
+
+            // verifico se è un "Employees"
+            var em = _ctx.UserEmployees
+                .Where(x => x.UserName == loginModel.UserName && x.Password == loginModel.Password)
+                .Include(x => x.JobQualification).FirstOrDefault();
+            if (em is not null)
             {
-                throw ex;
+                return new UserModelDTO()
+                {
+                    UserType = UserModelDTO.UserModelType.EMPLOYEE,
+                    UserName = em.UserName,
+                    JobQualification = em.JobQualification.ShortDescr,
+                    Id = em.Id
+                };
             }
+
+            // TODO: verifico se è un "CUSTOMER"             
+
+            // utente non trovato:
+            return null;
         }
 
 
@@ -103,8 +99,8 @@ namespace CinemaBL
         /// </summary>
         /// <param name="emp"></param>
         /// <returns></returns>
-        [Obsolete ("Use instead Add of Repository", DiagnosticId ="Metodo Obsoleto")]
-        public UsersMngEnum CreateEmployee(CinemaDTO.UsersEmployeeMinimalDTO emp)
+        [Obsolete("Use instead Add of Repository", DiagnosticId = "Metodo Obsoleto")]
+        public UsersMngEnum CreateEmployee(CinemaDTO.UserEmployeeMinimalDTO emp)
         {
             /// COSA FA:
             /// verifica se ci sono i valori minimi necessari per l'inserimento di un employee
@@ -163,7 +159,7 @@ namespace CinemaBL
             j.Name = emp.Name;
             j.Surname = emp.Surname;
 
-            var job = new UsersEmployeeJobDTO()
+            var job = new UserEmployeeJobDTO()
             {
                 Id = emp.Id,
                 JobQualificationId = emp.JobQualificationId
@@ -191,7 +187,7 @@ namespace CinemaBL
         /// <returns></returns>
         public IEnumerable<UserEmployeeDTO> GetUsersEmployee()
         {
-            
+
             var ll = _ctx.UserEmployees.Select(x => new UserEmployeeDTO()
             {
                 JobQualificationId = x.JobQualificationId,
@@ -221,7 +217,7 @@ namespace CinemaBL
             return ll;
         }
 
-        public UsersMngEnum UpdateEmployeeJob(UsersEmployeeJobDTO emp)
+        public UsersMngEnum UpdateEmployeeJob(UserEmployeeJobDTO emp)
         {
             var usr = _ctx.UserEmployees.Where(x => x.Id == emp.Id).FirstOrDefault();
             if (usr is null)
@@ -277,7 +273,7 @@ namespace CinemaBL
             {
                 return UsersMngEnum.NOT_FOUND;
             }
-            
+
             // posso eliminare l'utente se ne sono almeno altri 2 sulla stessa sala
             //if (_ctx.UserEmployees.Count(x => x.CinemaRoomId == usr.CinemaRoomId) > 2)
             //{
@@ -292,7 +288,7 @@ namespace CinemaBL
                 return UsersMngEnum.DELETED;
             }
 
-            return UsersMngEnum.VIOLATION_MINIMUM_REQUIRED;            
+            return UsersMngEnum.VIOLATION_MINIMUM_REQUIRED;
         }
     }
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace CinemaDTO
 {
 
-    public class UsersEmployeeMinimalDTO
+    public class UserEmployeeMinimalDTO
     {
         public string UserName { get; set; }
         public string Password { get; set; }
@@ -17,7 +17,7 @@ namespace CinemaDTO
     /// <summary>
     /// utile per cambiare solo i JOB
     /// </summary>
-    public class UsersEmployeeJobDTO
+    public class UserEmployeeJobDTO
     {
         public int Id { get; set; }
         public int JobQualificationId { get; set; }
@@ -32,7 +32,7 @@ namespace CinemaDTO
         public int JobQualificationId { get; set; }
         public int isActive { get; set; }
     }
-    public class UserEmployeeDTO : UsersEmployeeMinimalDTO
+    public class UserEmployeeDTO : UserEmployeeMinimalDTO
     {
         public int Id { get; set; }
         public string Name { get; set; }

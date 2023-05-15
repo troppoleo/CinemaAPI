@@ -26,15 +26,26 @@ namespace CinemaAPI.Tasks
 
         private async Task DoWorkAsync()
         {
-            await _hub.Clients.All.SendAsync("ReceiveSeatRoom", new SeatRoomDTO()
-            {
-                cinemaRoomId = 1,
-                stdSeatBusy = 10,
-                stdSeatFree = 10,
-                TotalSeat = 111,
-                vipSeatBusy = 10,
-                vipSeatFree = 11
-            });
+
+            //await _hub.Clients.Groups("3002").SendAsync("ReceiveSeatRoom", new SeatRoomDTO()
+            //{
+            //    cinemaRoomId = 1,
+            //    stdSeatBusy = 10,
+            //    stdSeatFree = 10,
+            //    TotalSeat = 111,
+            //    vipSeatBusy = 10,
+            //    vipSeatFree = 11
+            //});
+
+            //await _hub.Clients.All.SendAsync("ReceiveSeatRoom", new SeatRoomDTO()
+            //{
+            //    cinemaRoomId = 1,
+            //    stdSeatBusy = 10,
+            //    stdSeatFree = 10,
+            //    TotalSeat = 111,
+            //    vipSeatBusy = 10,
+            //    vipSeatFree = 11
+            //});
         }
     }
 }

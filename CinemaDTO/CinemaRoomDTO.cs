@@ -50,7 +50,7 @@ namespace CinemaDTO
         //public int cinemaRoomId { get; set; }
     }
 
-    public class CinemaRoomDTO : CinemaRoomForInsertDTO
+    public class CinemaRoomDTO : CinemaRoomForInsertWithOwnDTO
     {
         public int Id { get; set; }
     }

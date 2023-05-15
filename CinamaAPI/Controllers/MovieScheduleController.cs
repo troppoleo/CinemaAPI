@@ -31,7 +31,7 @@ namespace CinemaAPI.Controllers
 
         [HttpPatch]
         [Route("Update"), AllowAnonymous]
-        public IActionResult Update(MovieScheduleDTO ms)
+        public IActionResult Update(MovieScheduleForUpdateDTO ms)
         { 
             return Ok(_mss.Update(ms).ToString());  
 

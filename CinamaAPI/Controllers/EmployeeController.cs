@@ -58,7 +58,7 @@ namespace CinemaAPI.Controllers
         [Obsolete]
         [HttpPost]
         [Route("CreateNewEmployee")]
-        public ActionResult<string> CreateNewEmployee([FromBody] CinemaDTO.UsersEmployeeMinimalDTO emp)
+        public ActionResult<string> CreateNewEmployee([FromBody] CinemaDTO.UserEmployeeMinimalDTO emp)
         {
             UsersMngEnum res = UsersMngEnum.NONE;
             try
@@ -113,7 +113,7 @@ namespace CinemaAPI.Controllers
 
         [HttpPatch]
         [Route("UpdateEmployeeJob")]
-        public ActionResult<string> UpdateEmployeeJob([FromBody] CinemaDTO.UsersEmployeeJobDTO emp)
+        public ActionResult<string> UpdateEmployeeJob([FromBody] CinemaDTO.UserEmployeeJobDTO emp)
         {
             try
             {
