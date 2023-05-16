@@ -65,7 +65,11 @@ namespace CinemaBL.Enums
         /// <summary>
         /// finito e sala liberata, include i 10 min extra film
         /// </summary>
-        DONE
+        DONE,
+        /// <summary>
+        /// il film è stato cancellato
+        /// </summary>
+        CANCELLED
     }
 
 }

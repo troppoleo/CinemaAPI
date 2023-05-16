@@ -77,7 +77,8 @@ builder.Services.AddSwaggerGen(opt =>
 
 // Registro il mio Periodic Background Task
 // TODO: RIABILITARE, ADESSO MI DA SOLO FASTIDIO
-//builder.Services.AddHostedService<ServiceSetStatusToDONE>();
+builder.Services.AddHostedService<ServiceSetStatusToDONE>();
+builder.Services.AddHostedService<ServiceLiberaOWN_SALA>();
 
 // BG per inviare i cambiamenti delle poltrone nelle sale:
 builder.Services.AddHostedService<ServicePushBySignalRSeatRoom>();

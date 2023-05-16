@@ -1,4 +1,5 @@
-﻿using CinemaBL.Repository;
+﻿using CinemaBL.Enums;
+using CinemaBL.Repository;
 using CinemaDAL.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,7 +12,6 @@ namespace CinemaAPI.Tasks
         //private IUnitOfWorkGeneric _uow;
 
         private IConfiguration _conf;
-        private readonly CinemaContext _context;
         private readonly IServiceScopeFactory _ssf;
 
         public ServiceSetStatusToDONE(IServiceScopeFactory ssf, IConfiguration conf)
@@ -35,18 +35,32 @@ namespace CinemaAPI.Tasks
             var ctx = scope.ServiceProvider.GetRequiredService<CinemaContext>();
 
             // now do your work
-            var scheduledMoveToCheck = ctx.MovieSchedules.Include(x => x.Movie).Where(x => x.Status != CinemaBL.Enums.MovieScheduleEnum.DONE.ToString());
+
+            // imposta i film a DONE
+            var scheduledMoveToCheck = ctx.MovieSchedules.Include(x => x.Movie).Where(x => x.IsApproved == 1 &&
+                x.Status != MovieScheduleEnum.DONE.ToString());
             foreach (var sm in scheduledMoveToCheck)
-            {                
+            {
                 if (CheckIfMovieIsDone(sm))
                 {
-                    sm.Status = CinemaBL.Enums.MovieScheduleEnum.DONE.ToString();
+                    sm.Status = MovieScheduleEnum.DONE.ToString();
                     ctx.MovieSchedules.Update(sm);
                 }
             }
             
+
+            // annulla i film che non hanno venduto biglietti
+            var moviesToCancel = ctx.MovieSchedules.Where(x => x.IsApproved == 1 && x.VipSeat == 0 && x.StdSeat == 0);
+            foreach (var sm in moviesToCancel)
+            {
+                sm.Status = MovieScheduleEnum.CANCELLED.ToString();
+                sm.IsApproved = 0;
+                ctx.MovieSchedules.Update(sm);
+            }
+
             ctx.SaveChanges();
         }
+
 
         /// <summary>
         /// verifica se il film è finito
