@@ -49,7 +49,7 @@ namespace CinemaBL
                     //sh.StdSeat = ms.StdSeat;
 
                     _uow.GetMovieScheduleRep.Update(sh);
-
+                    
                     return CrudCinemaEnum.UPDATED;
                 }
             }

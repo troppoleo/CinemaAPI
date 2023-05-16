@@ -124,6 +124,9 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("GET_TICKET", policy =>
         policy.RequireClaim("GET_TICKET", "true"));
 
+    options.AddPolicy("OWN_SALA", policy =>
+        policy.RequireClaim("OWN_SALA", "true"));
+
     //options.AddPolicy("CheckAge21", policy =>
     //    policy.Requirements.Add(new MinimunAgeRequirement(21)));
 });

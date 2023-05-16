@@ -1,4 +1,5 @@
-﻿using CinemaBL.Extension;
+﻿using CinemaBL.Enums;
+using CinemaBL.Extension;
 using CinemaBL.Repository;
 using CinemaDAL.Models;
 using CinemaDTO;
@@ -8,6 +9,7 @@ namespace CinemaAPI.Hubs
 {
     public interface INotify
     {
+        void SendMessageToGET_TICKET(int idMovieSchedule);
         void SendMessageToOwn_SALA(int userEmployeeId);
     }
 
@@ -20,6 +22,32 @@ namespace CinemaAPI.Hubs
         {
             _hub = hub;
             _uow = uow;
+        }
+
+        public void SendMessageToGET_TICKET(int idMovieSchedule = -1)
+        {
+            var bigliettai = _uow.GetUserEmployeeRep.Get(x=> x.JobQualificationId == (int)JobEmployeeQualificationEnum.GET_TICKET).ToList();
+            foreach (var bi in bigliettai)
+            {
+                MovieSchedule ms;
+                if (idMovieSchedule > 0)
+                {
+                    ms = _uow.GetMovieScheduleRep.Get(x => x.Id == idMovieSchedule && x.StartDate >= DateTime.Now,
+                        includeProperties: $"{nameof(Movie)},{nameof(CinemaRoom)}").First();
+                }
+                else
+                {
+                    ms = _uow.GetMovieScheduleRep.Get(x => x.StartDate >= DateTime.Now,
+                        includeProperties: $"{nameof(Movie)},{nameof(CinemaRoom)}").First();
+                }
+                _hub.Clients.Group(bi.Id.ToString()).SendAsync("ReceiveMovieScheduleIsApproved", new
+                {
+                    FilmName = ms.Movie.FilmName,
+                    RoomName = ms.CinemaRoom.RoomName,
+                    StartDate = ms.StartDate
+                });
+            }
+            
         }
 
         public void SendMessageToOwn_SALA(int userEmployeeId)

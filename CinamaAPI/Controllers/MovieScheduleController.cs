@@ -1,4 +1,5 @@
-﻿using CinemaBL;
+﻿using CinemaAPI.Hubs;
+using CinemaBL;
 using CinemaBL.Repository;
 using CinemaDTO;
 using Microsoft.AspNetCore.Authorization;
@@ -13,10 +14,12 @@ namespace CinemaAPI.Controllers
     public class MovieScheduleController : ControllerBase
     {
         private readonly IMovieScheduleService _mss;
+        private readonly INotify _nf;
 
-        public MovieScheduleController(IMovieScheduleService mss)
+        public MovieScheduleController(IMovieScheduleService mss, INotify nf)
         {
             _mss = mss;
+            _nf = nf;
         }
 
 
@@ -32,8 +35,19 @@ namespace CinemaAPI.Controllers
         [HttpPatch]
         [Route("Update"), AllowAnonymous]
         public IActionResult Update(MovieScheduleForUpdateDTO ms)
-        { 
-            return Ok(_mss.Update(ms).ToString());  
+        {
+            var result = _mss.Update(ms);
+
+            if (ms.IsApproved == 1)
+            {
+                switch (result)
+                {
+                    case CinemaBL.Enums.CrudCinemaEnum.UPDATED:
+                        _nf.SendMessageToGET_TICKET(ms.Id);
+                        break;
+                }
+            }
+            return Ok(result.ToString());  
 
         }
 

@@ -28,11 +28,11 @@ namespace CinemaBL
             List<Claim> llClaim = new List<Claim>();
             llClaim.AddRange(new[]
             {
+                new Claim(ClaimTypes.Role, um.UserType.ToString()),  // [Authorize(Roles = "Roles!!
                 new Claim(JwtRegisteredClaimNames.Name, um.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(nameof(um.UserName), um.UserName),
-                new Claim(nameof(um.Id), um.Id.ToString()),
-                new Claim(ClaimTypes.Role, um.UserType.ToString())
+                new Claim(nameof(um.Id), um.Id.ToString())
             });
 
 
@@ -45,7 +45,7 @@ namespace CinemaBL
                     llClaim.AddRange(new[]
                     { 
                         //new Claim(JwtRegisteredClaimNames.Birthdate, um.Birthdate.ToString("yyyy-MM-dd")),
-                        new Claim(um.JobQualification, "true"),
+                        new Claim(um.JobQualification, "true"),     // policy!! [Authorize(Roles = "EMPLOYEE", Policy = "OWN_SALA")]
                         new Claim(nameof(um.JobQualification), um.JobQualification)
                     });                    
 
@@ -62,7 +62,7 @@ namespace CinemaBL
 
             var token = new JwtSecurityToken(
                 conf["Jwt:Issuer"],
-                conf["Jwt:Issuer"],
+                conf["Jwt:Audience"],
                 llClaim,
                 expires: DateTime.Now.AddDays(30), //expires: DateTime.Now.AddMinutes(30),
                 signingCredentials: creds);
