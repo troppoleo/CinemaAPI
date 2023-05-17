@@ -32,6 +32,8 @@ builder.Services.AddTransient<IUserEmployeeService, UserEmployeeService>();
 builder.Services.AddTransient<IJobEmployeeQualificationService, JobEmployeeQualificationService>();
 builder.Services.AddTransient<IMovieScheduleService, MovieScheduleService>();
 builder.Services.AddTransient<IReviewService, ReviewService>();
+builder.Services.AddTransient<ITicketService, TicketService>();
+
 
 // questa serve per i messaggi HUB
 builder.Services.AddTransient<INotify, Notify>();

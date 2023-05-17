@@ -47,7 +47,11 @@ namespace CinemaAPI.Tasks
                     ctx.MovieSchedules.Update(sm);
                 }
             }
-            
+
+            // TODO: IMPOSTARE status a: (mi serve per la generazione dei biglietti)
+            //MovieScheduleEnum.IN_PROGRESS
+            //MovieScheduleEnum.CLEAN_TIME
+            //MovieScheduleEnum.IN_PROGRESS
 
             // annulla i film che non hanno venduto biglietti
             var moviesToCancel = ctx.MovieSchedules.Where(x => x.IsApproved == 1 && x.VipSeat == 0 && x.StdSeat == 0);

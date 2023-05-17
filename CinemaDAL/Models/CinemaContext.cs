@@ -250,13 +250,23 @@ public partial class CinemaContext : DbContext
                 .HasColumnName("commentNote");
             entity.Property(e => e.CustomerId).HasColumnName("customerId");
             entity.Property(e => e.MovieScheduleId).HasColumnName("movieScheduleId");
-            entity.Property(e => e.Price)
+            entity.Property(e => e.PriceStd)
                 .HasComment("è il prezzo del biglietto che eventualmente potrebbe essere maggiorato per vip")
                 .HasColumnType("money")
-                .HasColumnName("price");
+                .HasColumnName("priceStd");
+            entity.Property(e => e.PriceVipPercent)
+                .HasComment("percentuale di maggiorazione per i prezzi Vip")
+                .HasColumnType("decimal(10, 2)")
+                .HasColumnName("priceVipPercent");
             entity.Property(e => e.Rate)
                 .HasComment("Valurazione del film")
                 .HasColumnName("rate");
+            entity.Property(e => e.ReservedStdSeats)
+                .HasComment("Numero di bilgietti starndard acquistati")
+                .HasColumnName("reservedStdSeats");
+            entity.Property(e => e.ReservedVipSeat)
+                .HasComment("numero di biglietti Vip acquistati")
+                .HasColumnName("reservedVipSeat");
 
             entity.HasOne(d => d.Customer).WithMany(p => p.Tickets)
                 .HasForeignKey(d => d.CustomerId)

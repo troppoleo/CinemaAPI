@@ -29,7 +29,22 @@ public partial class Ticket
     /// <summary>
     /// è il prezzo del biglietto che eventualmente potrebbe essere maggiorato per vip
     /// </summary>
-    public decimal? Price { get; set; }
+    public decimal? PriceStd { get; set; }
+
+    /// <summary>
+    /// Numero di bilgietti starndard acquistati
+    /// </summary>
+    public int? ReservedStdSeats { get; set; }
+
+    /// <summary>
+    /// numero di biglietti Vip acquistati
+    /// </summary>
+    public int? ReservedVipSeat { get; set; }
+
+    /// <summary>
+    /// percentuale di maggiorazione per i prezzi Vip
+    /// </summary>
+    public decimal? PriceVipPercent { get; set; }
 
     public virtual Customer? Customer { get; set; }
 

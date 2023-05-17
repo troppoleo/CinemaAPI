@@ -33,28 +33,6 @@ namespace CinemaAPI.Tasks
             var ctx = scope.ServiceProvider.GetRequiredService<CinemaContext>();
 
             // individua le schedulazioni a DONE 
-
-            //var cinemaRoomIdList = ctx.MovieSchedules
-            //    .Where(x => x.Status == MovieScheduleEnum.DONE.ToString())
-            //    .Select(x => x.CinemaRoomId).ToList();
-
-            //foreach (var cineRoomid in cinemaRoomIdList)
-            //{
-            //    try
-            //    {
-            //        var crossList = ctx.CinemaRoomCrossUserEmployees.Where(x => x.CinemaRoomId == cineRoomid).ToList();
-            //        foreach (var cross in crossList)
-            //        {
-            //            cross.UserEmployeeId = null;
-            //            ctx.CinemaRoomCrossUserEmployees.Update(cross);
-            //        }
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        Console.WriteLine(ex.ToString());
-            //    }
-            //}
-
             foreach (var cinemaRoomId in ctx.MovieSchedules
                 .Where(x => x.Status == MovieScheduleEnum.DONE.ToString())
                 .Select(x => x.CinemaRoomId).ToList())
