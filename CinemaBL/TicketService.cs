@@ -54,7 +54,8 @@ namespace CinemaBL
                 PriceStd = (decimal)tg.PriceStd,
                 PriceVipPercent = (decimal)tg.PriceVipPercent,
                 ReservedStdSeats = tg.reservedStdSeats,
-                ReservedVipSeat = tg.reservedVipSeat
+                ReservedVipSeat = tg.reservedVipSeat,
+                DateTicket= DateTime.Now
             };
 
             _uow.GetTicketRep.Insert(tk);

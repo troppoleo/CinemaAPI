@@ -6,6 +6,19 @@ using System.Threading.Tasks;
 
 namespace CinemaBL.Enums
 {
+    public enum MessageForUserEnum
+    { 
+        DONE,
+        LIMIT_AGE,
+        LIMIT_TICKET,
+        NO_SEAT,
+        SCHEDULE_NOT_FOUND,
+        ERROR,
+        USER_NOT_AUTHORIZED,
+        TOO_LATE_TO_DELETE_TICKET
+    }
+
+
     public enum CrudCinemaEnum
     {
         CREATED,
@@ -83,4 +96,10 @@ namespace CinemaBL.Enums
         CANCELLED
     }
 
+
+    public enum PriceTicketDefaultEnum
+    {
+        STD_SEAT,
+        VIP_SEAT_PERCENTUAL
+    }
 }

@@ -62,10 +62,10 @@ namespace CinemaAPI.Hubs
                     {
                         cinemaRoomId = movieScheduleItem.CinemaRoomId,
                         stdSeatBusy = movieScheduleItem.StdSeat.ToDefault(),
-                        stdSeatFree = movieScheduleItem.CinemaRoom.MaxStdSeat.ToDefault() - movieScheduleItem.StdSeat.ToDefault(),
-                        TotalSeat = movieScheduleItem.CinemaRoom.MaxStdSeat.ToDefault() + movieScheduleItem.CinemaRoom.MaxVipSeat.ToDefault(),
+                        stdSeatFree = movieScheduleItem.CinemaRoom.MaxStdSeat - movieScheduleItem.StdSeat.ToDefault(),
+                        TotalSeat = movieScheduleItem.CinemaRoom.MaxStdSeat + movieScheduleItem.CinemaRoom.MaxVipSeat,
                         vipSeatBusy = movieScheduleItem.VipSeat.ToDefault(),
-                        vipSeatFree = movieScheduleItem.CinemaRoom.MaxVipSeat.ToDefault() - movieScheduleItem.VipSeat.ToDefault()
+                        vipSeatFree = movieScheduleItem.CinemaRoom.MaxVipSeat - movieScheduleItem.VipSeat.ToDefault()
                     });
                 }
 

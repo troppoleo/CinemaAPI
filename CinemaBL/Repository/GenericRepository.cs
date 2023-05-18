@@ -186,6 +186,11 @@ namespace CinemaBL.Repository
         //}
     }
 
+    public class PriceTicketDefaultRep : GenericRepository<PriceTicketDefault>
+    {
+        public PriceTicketDefaultRep(CinemaContext context) : base(context) { }
+    }
+
     public class ViewReviewRep : GenericRepository<ViewReview>
     {
         public ViewReviewRep(CinemaContext context) : base(context) { }

@@ -20,7 +20,7 @@ namespace CinemaAPI.Controllers
 
         [HttpPost]
         [Route("TicketGenerate")]
-        //todo: ripristinare: [Authorize(Roles ="EMPLOYEE", Policy ="GET_TICKET")]
+        [Authorize(Roles ="EMPLOYEE", Policy ="GET_TICKET")]
         public ActionResult<TicketGenerateResultDTO> TicketGenerate([FromBody] TicketGenerateDTO tg)
         {
             return Ok(_ts.TicketGenerate(tg));

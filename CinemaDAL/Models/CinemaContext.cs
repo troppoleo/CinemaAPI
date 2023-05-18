@@ -27,6 +27,8 @@ public partial class CinemaContext : DbContext
 
     public virtual DbSet<MovieSchedule> MovieSchedules { get; set; }
 
+    public virtual DbSet<PriceTicketDefault> PriceTicketDefaults { get; set; }
+
     public virtual DbSet<Projection> Projections { get; set; }
 
     public virtual DbSet<Ticket> Tickets { get; set; }
@@ -212,6 +214,21 @@ public partial class CinemaContext : DbContext
                 .HasConstraintName("FK_MovieSchedule_Movie");
         });
 
+        modelBuilder.Entity<PriceTicketDefault>(entity =>
+        {
+            entity.HasKey(e => e.SeatType);
+
+            entity.ToTable("PriceTicketDefault", tb => tb.HasComment("Definisce i prezzi di default per Standard e Vip Seat"));
+
+            entity.Property(e => e.SeatType)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("seatType");
+            entity.Property(e => e.Price)
+                .HasColumnType("money")
+                .HasColumnName("price");
+        });
+
         modelBuilder.Entity<Projection>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Projecti__3214EC07FD868ADB");
@@ -248,6 +265,10 @@ public partial class CinemaContext : DbContext
                 .HasComment("Commento sul film")
                 .HasColumnName("commentNote");
             entity.Property(e => e.CustomerId).HasColumnName("customerId");
+            entity.Property(e => e.DateTicket)
+                .HasComment("la data in cui è stato generato il ticket")
+                .HasColumnType("datetime")
+                .HasColumnName("dateTicket");
             entity.Property(e => e.MovieScheduleId).HasColumnName("movieScheduleId");
             entity.Property(e => e.PriceStd)
                 .HasComment("è il prezzo del biglietto che eventualmente potrebbe essere maggiorato per vip")

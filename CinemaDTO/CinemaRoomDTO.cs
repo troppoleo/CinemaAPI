@@ -30,12 +30,12 @@ namespace CinemaDTO
         /// <summary>
         /// massimo numero di posti VIP
         /// </summary>
-        public int? MaxVipSeat { get; set; }
+        public int MaxVipSeat { get; set; }
 
         /// <summary>
         /// Massimo numero di posto standard
         /// </summary>
-        public int? MaxStdSeat { get; set; }
+        public int MaxStdSeat { get; set; }
 
         
     }

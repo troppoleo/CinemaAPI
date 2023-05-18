@@ -46,6 +46,11 @@ public partial class Ticket
     /// </summary>
     public decimal? PriceVipPercent { get; set; }
 
+    /// <summary>
+    /// la data in cui è stato generato il ticket
+    /// </summary>
+    public DateTime? DateTicket { get; set; }
+
     public virtual Customer? Customer { get; set; }
 
     public virtual MovieSchedule? MovieSchedule { get; set; }

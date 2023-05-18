@@ -1,4 +1,5 @@
 ﻿using CinemaBL.Repository;
+using CinemaDAL.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,7 @@ namespace CinemaBL.Utility
         /// <param name="userName"></param>
         /// <returns></returns>
         bool IsUsernameAlreadyUsed(string userName);
+        int GetAge(DateTime dt);
     }
 
     public class UserUtility : IUserUtility
@@ -52,5 +54,10 @@ namespace CinemaBL.Utility
             return false;
         }
 
+
+        public int GetAge(DateTime dt)
+        {
+            return  (int)Math.Truncate(DateTime.Now.Subtract(dt).TotalDays / 365);
+        }
     }
 }

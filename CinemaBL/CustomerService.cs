@@ -15,6 +15,9 @@ namespace CinemaBL
 {
     public interface ICustomerService
     {
+        BuyedTicketsCustomerDTO BuyTickets(BuyTicketCustomerDTO btc, int idCustomer);
+        MessageForUserEnum DeleteTicket(int ticketId, int idCustomer);
+        IEnumerable<MovieDetailForCustomerDTO> GetMovieDetail(int idMovieSchedule);
         IEnumerable<MovieScheduleForCustomerDTO> GetMoviesScheduled(MovieFilterForCustomerDTO ff);
         CrudCinemaEnum Insert(CustomerForInsertDTO cus);
     }
@@ -28,6 +31,129 @@ namespace CinemaBL
         {
             _uow = uow;
             _userUtility = userUtility;
+        }
+
+        public BuyedTicketsCustomerDTO BuyTickets(BuyTicketCustomerDTO btc, int idCustomer)
+        {
+            /// controllo che 
+            ///     il film sia in Waiting
+            ///     abbia l'età per vederlo
+
+            var ms = _uow.GetMovieScheduleRep.Get(x => x.Id == btc.MovieScheduleId && x.Status == Enums.MovieScheduleEnum.WAITING.ToString(), includeProperties: nameof(Movie)).FirstOrDefault();
+            if (ms is not null)
+            {
+                var customer = _uow.GetCustomerRep.GetByID(idCustomer);
+
+                if (_userUtility.GetAge(customer.Birthdate) < ms.Movie.LimitAge.ToDefault())
+                {
+                    return new BuyedTicketsCustomerDTO()
+                    {
+                        MessageBackForCustomer = MessageForUserEnum.LIMIT_TICKET.ToString()
+                    };
+                }
+                if (btc.ReservedStdSeat + btc.ReservedVipSeat > 4)
+                {
+                    return new BuyedTicketsCustomerDTO()
+                    {
+                        MessageBackForCustomer = MessageForUserEnum.LIMIT_TICKET.ToString()
+                    };
+                }
+
+                // decremento i posti disponibili
+                ms.StdSeat -= btc.ReservedStdSeat;
+                ms.VipSeat -= btc.ReservedVipSeat;
+                _uow.GetMovieScheduleRep.Update(ms);
+
+                var stdDefaultPrice = _uow.GetPriceTicketDefaultRep.GetByID(Enums.PriceTicketDefaultEnum.STD_SEAT.ToString()).Price.Value;
+                var vipDefaultPercentual = _uow.GetPriceTicketDefaultRep.GetByID(Enums.PriceTicketDefaultEnum.VIP_SEAT_PERCENTUAL.ToString()).Price.Value;
+                var vipDefaultPrice = stdDefaultPrice + (stdDefaultPrice * vipDefaultPercentual / 100);
+
+
+                var tk = new Ticket()
+                {
+                    CustomerId = customer.Id,
+                    MovieScheduleId = ms.Id,
+                    ReservedStdSeats = btc.ReservedStdSeat,
+                    ReservedVipSeat = btc.ReservedVipSeat,
+                    PriceStd = stdDefaultPrice,
+                    PriceVipPercent = vipDefaultPercentual,
+                    DateTicket = DateTime.Now
+                };
+
+                _uow.GetTicketRep.Insert(tk);
+
+                _uow.Save();
+
+
+                //  controllo che ci siano abbastanza posti disponibili
+                if (ms.StdSeat < btc.ReservedStdSeat || ms.VipSeat < btc.ReservedVipSeat)
+                {
+                    return new BuyedTicketsCustomerDTO()
+                    {
+                        MessageBackForCustomer = MessageForUserEnum.NO_SEAT.ToString()
+                    };
+                }
+                // TODO: DECREMENTARE I POSTI DISPONIBILI IN MOVIESCHEDULE!!
+                return new BuyedTicketsCustomerDTO()
+                {
+                    MessageBackForCustomer = MessageForUserEnum.DONE.ToString(),
+                    MovieScheduleId = ms.Id,
+                    IdTicket = tk.Id,
+                    ReservedStdSeat = btc.ReservedStdSeat,
+                    ReservedVipSeat = btc.ReservedVipSeat,
+                    TotalPrice = (stdDefaultPrice * btc.ReservedStdSeat) + (vipDefaultPrice * btc.ReservedVipSeat)
+                };
+            }
+
+            return new BuyedTicketsCustomerDTO()
+            {
+                MessageBackForCustomer = MessageForUserEnum.SCHEDULE_NOT_FOUND.ToString()
+            };
+        }
+
+        public MessageForUserEnum DeleteTicket(int ticketId, int idCustomer)
+        {
+            // nelle'estrazione controllo anche il customer sia quello che che ha fatto la prenotazione
+            var ticket = _uow.GetTicketRep.Get(x => x.Id == ticketId && x.CustomerId == idCustomer,
+                includeProperties: nameof(MovieSchedule)).FirstOrDefault();
+
+            if (ticket != null)
+            {
+                if (ticket.MovieSchedule.Status.ToEnum<MovieScheduleEnum>() != MovieScheduleEnum.WAITING)
+                {
+                    return MessageForUserEnum.TOO_LATE_TO_DELETE_TICKET;
+                }
+                var ms = _uow.GetMovieScheduleRep.GetByID(ticket.MovieScheduleId.Value);
+                // incremento i posti disponibili:
+                ms.StdSeat += ticket.ReservedStdSeats;
+                ms.VipSeat += ticket.ReservedVipSeat;
+
+                _uow.GetMovieScheduleRep.Update(ms);
+
+                _uow.GetTicketRep.Delete(ticket);
+
+                return MessageForUserEnum.DONE;
+            }
+
+            return MessageForUserEnum.USER_NOT_AUTHORIZED;
+        }
+
+        public IEnumerable<MovieDetailForCustomerDTO> GetMovieDetail(int idMovieSchedule)
+        {
+            var ms = _uow.GetMovieScheduleRep.Get(x => x.Id == idMovieSchedule, includeProperties: $"{nameof(Movie)},{nameof(CinemaRoom)}");
+            return ms.Select(x => new MovieDetailForCustomerDTO()
+            {
+                Actors = x.Movie.Actors,
+                Duration = x.Movie.Duration,
+                FilmName = x.Movie.FilmName,
+                FreeSeatStd = x.CinemaRoom.MaxStdSeat - x.StdSeat.ToDefault(),
+                FreeSeatVip = x.CinemaRoom.MaxVipSeat - x.VipSeat.ToDefault(),
+                Genere = x.Movie.Genere,
+                LimitAge = x.Movie.LimitAge.ToDefault(),
+                RoomName = x.CinemaRoom.RoomName,
+                StartDate = x.StartDate,
+                Trama = x.Movie.Trama
+            });
         }
 
         public IEnumerable<MovieScheduleForCustomerDTO> GetMoviesScheduled(MovieFilterForCustomerDTO ff)
@@ -48,6 +174,7 @@ namespace CinemaBL
 
             return msFiltered.Select(x => new MovieScheduleForCustomerDTO()
             {
+                MovieScheduleId = x.Id,
                 FilmName = x.Movie.FilmName,
                 Actors = x.Movie.Actors,
                 Duration = x.Movie.Duration,
