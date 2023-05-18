@@ -19,5 +19,7 @@ public partial class Customer
 
     public string UserName { get; set; } = null!;
 
+    public virtual ICollection<MovieRate> MovieRates { get; set; } = new List<MovieRate>();
+
     public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
 }

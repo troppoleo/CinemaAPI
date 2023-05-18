@@ -25,6 +25,8 @@ public partial class CinemaContext : DbContext
 
     public virtual DbSet<Movie> Movies { get; set; }
 
+    public virtual DbSet<MovieRate> MovieRates { get; set; }
+
     public virtual DbSet<MovieSchedule> MovieSchedules { get; set; }
 
     public virtual DbSet<PriceTicketDefault> PriceTicketDefaults { get; set; }
@@ -38,6 +40,8 @@ public partial class CinemaContext : DbContext
     public virtual DbSet<UserType> UserTypes { get; set; }
 
     public virtual DbSet<UsersAdmin> UsersAdmins { get; set; }
+
+    public virtual DbSet<ViewCustomerMovieWatched> ViewCustomerMovieWatcheds { get; set; }
 
     public virtual DbSet<ViewReview> ViewReviews { get; set; }
 
@@ -175,6 +179,31 @@ public partial class CinemaContext : DbContext
                 .HasColumnName("trama");
         });
 
+        modelBuilder.Entity<MovieRate>(entity =>
+        {
+            entity.ToTable("MovieRate");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.ActorRate).HasColumnName("actorRate");
+            entity.Property(e => e.AmbientRate).HasColumnName("ambientRate");
+            entity.Property(e => e.CommentNote)
+                .HasMaxLength(1000)
+                .IsUnicode(false)
+                .HasColumnName("commentNote");
+            entity.Property(e => e.CustomerId).HasColumnName("customerId");
+            entity.Property(e => e.MovieId).HasColumnName("movieId");
+            entity.Property(e => e.TramaRate).HasColumnName("tramaRate");
+
+            entity.HasOne(d => d.Customer).WithMany(p => p.MovieRates)
+                .HasForeignKey(d => d.CustomerId)
+                .HasConstraintName("FK_MovieRate_Customer");
+
+            entity.HasOne(d => d.Movie).WithMany(p => p.MovieRates)
+                .HasForeignKey(d => d.MovieId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_MovieRate_Movie");
+        });
+
         modelBuilder.Entity<MovieSchedule>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_Person");
@@ -259,11 +288,6 @@ public partial class CinemaContext : DbContext
             entity.ToTable("Ticket", tb => tb.HasComment("tiene traccia dei biglietti emessi\r\ncon l'informazione dei film che un customer ha comprato\r\n"));
 
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.CommentNote)
-                .HasMaxLength(1000)
-                .IsUnicode(false)
-                .HasComment("Commento sul film")
-                .HasColumnName("commentNote");
             entity.Property(e => e.CustomerId).HasColumnName("customerId");
             entity.Property(e => e.DateTicket)
                 .HasComment("la data in cui è stato generato il ticket")
@@ -278,9 +302,6 @@ public partial class CinemaContext : DbContext
                 .HasComment("percentuale di maggiorazione per i prezzi Vip")
                 .HasColumnType("decimal(10, 2)")
                 .HasColumnName("priceVipPercent");
-            entity.Property(e => e.Rate)
-                .HasComment("Valurazione del film")
-                .HasColumnName("rate");
             entity.Property(e => e.ReservedStdSeats)
                 .HasComment("Numero di bilgietti starndard acquistati")
                 .HasColumnName("reservedStdSeats");
@@ -367,12 +388,47 @@ public partial class CinemaContext : DbContext
                 .IsUnicode(false);
         });
 
+        modelBuilder.Entity<ViewCustomerMovieWatched>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("view_customer_movie_watched");
+
+            entity.Property(e => e.Actors)
+                .HasMaxLength(500)
+                .IsUnicode(false)
+                .HasColumnName("actors");
+            entity.Property(e => e.CustomerId).HasColumnName("customerId");
+            entity.Property(e => e.DateTicket)
+                .HasColumnType("datetime")
+                .HasColumnName("dateTicket");
+            entity.Property(e => e.Director)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("director");
+            entity.Property(e => e.Duration).HasColumnName("duration");
+            entity.Property(e => e.FilmName)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("filmName");
+            entity.Property(e => e.Genere)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("genere");
+            entity.Property(e => e.Trama)
+                .HasMaxLength(500)
+                .IsUnicode(false)
+                .HasColumnName("trama");
+        });
+
         modelBuilder.Entity<ViewReview>(entity =>
         {
             entity
                 .HasNoKey()
                 .ToView("View_Review");
 
+            entity.Property(e => e.ActorRate).HasColumnName("actorRate");
+            entity.Property(e => e.AmbientRate).HasColumnName("ambientRate");
             entity.Property(e => e.CommentNote)
                 .HasMaxLength(1000)
                 .IsUnicode(false)
@@ -381,7 +437,7 @@ public partial class CinemaContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("filmName");
-            entity.Property(e => e.Rate).HasColumnName("rate");
+            entity.Property(e => e.TramaRate).HasColumnName("tramaRate");
         });
 
         modelBuilder.Entity<WeekCalendar>(entity =>

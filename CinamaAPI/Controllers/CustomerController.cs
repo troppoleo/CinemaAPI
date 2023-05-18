@@ -96,6 +96,32 @@ namespace CinemaAPI.Controllers
             return BadRequest(MessageForUserEnum.USER_NOT_AUTHORIZED.ToString());
         }
 
+        [HttpPost]
+        [Route("InsertMovieReview")]
+        [Authorize(Roles = "CUSTOMER")]
+        public ActionResult<string> InsertMovieReview([FromBody] MovieReviewDTO mr)
+        {
+            var idCustomer = GetIdCustomerFromClaim();
+            if (idCustomer != null)
+            {
+                return Ok(_cs.InsertMovieReview(mr, idCustomer.Value).ToString());
+            }
+            return BadRequest(MessageForUserEnum.USER_NOT_AUTHORIZED.ToString());
+        }
+
+
+        [HttpGet]
+        [Route("GetWatchedMovies")]
+        [Authorize(Roles = "CUSTOMER")]
+        public ActionResult<object> GetWatchedMovies()
+        {
+            var idCustomer = GetIdCustomerFromClaim();
+            if (idCustomer != null)
+            {
+                return Ok(_cs.GetWatchedMovies(idCustomer.Value));
+            }
+            return BadRequest(MessageForUserEnum.USER_NOT_AUTHORIZED.ToString());
+        }
 
     }
 }

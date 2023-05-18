@@ -190,6 +190,14 @@ namespace CinemaBL.Repository
     {
         public PriceTicketDefaultRep(CinemaContext context) : base(context) { }
     }
+    public class MovieRateRep : GenericRepository<MovieRate>
+    {
+        public MovieRateRep(CinemaContext context) : base(context) { }
+    }
+    public class ViewCustomerMovieWatchedRep : GenericRepository<ViewCustomerMovieWatched>
+    {
+        public ViewCustomerMovieWatchedRep(CinemaContext context): base(context) { }
+    }
 
     public class ViewReviewRep : GenericRepository<ViewReview>
     {

@@ -34,7 +34,7 @@ namespace CinemaDTO
         public string Genere { get; set; }
         public string Trama { get; set; }
         public int LimitAge { get; set; }
-        public string RoomName { get; set;}
+        public string RoomName { get; set; }
         public int FreeSeatStd { get; set; }
         public int FreeSeatVip { get; set; }
     }
@@ -53,8 +53,28 @@ namespace CinemaDTO
         public int ReservedStdSeat { get; set; }
         public int ReservedVipSeat { get; set; }
         public decimal TotalPrice { get; set; }
-        public string  MessageBackForCustomer { get; set; }
+        public string MessageBackForCustomer { get; set; }
     }
 
+    public class MovieReviewDTO
+    {
+        public int IdTicket { get; set; }
+        public int actorRate { get; set; }
+        public int tramaRate { get; set; }
+        public int ambientRate { get; set; }
+        public string commentNote { get; set; }
+    }
+
+    public class MovieWatchedDTO
+    {
+        public string FilmName { get; set; }
+        public DateTime DateTicket { get; set; }
+
+        public string  Actors { get; set; }
+        public string director { get; set; }
+        public int duration { get; set; }
+        public string genere { get; set; }
+        public string trama { get; set; }
+    }
 
 }

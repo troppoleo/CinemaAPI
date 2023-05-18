@@ -3,9 +3,13 @@ using System.Collections.Generic;
 
 namespace CinemaDAL.Models;
 
-public partial class ViewReview
+public partial class MovieRate
 {
-    public string FilmName { get; set; } = null!;
+    public int Id { get; set; }
+
+    public int CustomerId { get; set; }
+
+    public int? MovieId { get; set; }
 
     public int? ActorRate { get; set; }
 
@@ -14,4 +18,8 @@ public partial class ViewReview
     public int? AmbientRate { get; set; }
 
     public string? CommentNote { get; set; }
+
+    public virtual Customer Customer { get; set; } = null!;
+
+    public virtual Movie? Movie { get; set; }
 }

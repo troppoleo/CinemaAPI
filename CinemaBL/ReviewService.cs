@@ -31,7 +31,9 @@ namespace CinemaBL
                 {
                     CommentNote = x.CommentNote,
                     FilmName = x.FilmName,
-                    Rate = x.Rate.ToDefault()
+                    actorRate = x.ActorRate.ToDefault(),
+                    ambientRate = x.AmbientRate.ToDefault(),
+                    tramaRate= x.TramaRate.ToDefault()
                 });
             
             return ll;

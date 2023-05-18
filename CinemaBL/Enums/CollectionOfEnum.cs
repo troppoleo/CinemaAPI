@@ -15,7 +15,8 @@ namespace CinemaBL.Enums
         SCHEDULE_NOT_FOUND,
         ERROR,
         USER_NOT_AUTHORIZED,
-        TOO_LATE_TO_DELETE_TICKET
+        TOO_LATE_TO_DELETE_TICKET,
+        YOUR_RATE_HAS_BEEN_INSERTED
     }
 
 

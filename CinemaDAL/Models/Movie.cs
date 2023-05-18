@@ -45,5 +45,7 @@ public partial class Movie
     /// </summary>
     public int? LimitAge { get; set; }
 
+    public virtual ICollection<MovieRate> MovieRates { get; set; } = new List<MovieRate>();
+
     public virtual ICollection<MovieSchedule> MovieSchedules { get; set; } = new List<MovieSchedule>();
 }

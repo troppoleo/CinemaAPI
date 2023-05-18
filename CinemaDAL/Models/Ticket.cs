@@ -17,16 +17,6 @@ public partial class Ticket
     public int? MovieScheduleId { get; set; }
 
     /// <summary>
-    /// Valurazione del film
-    /// </summary>
-    public int? Rate { get; set; }
-
-    /// <summary>
-    /// Commento sul film
-    /// </summary>
-    public string? CommentNote { get; set; }
-
-    /// <summary>
     /// è il prezzo del biglietto che eventualmente potrebbe essere maggiorato per vip
     /// </summary>
     public decimal? PriceStd { get; set; }

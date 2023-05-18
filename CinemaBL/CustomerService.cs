@@ -19,7 +19,9 @@ namespace CinemaBL
         MessageForUserEnum DeleteTicket(int ticketId, int idCustomer);
         IEnumerable<MovieDetailForCustomerDTO> GetMovieDetail(int idMovieSchedule);
         IEnumerable<MovieScheduleForCustomerDTO> GetMoviesScheduled(MovieFilterForCustomerDTO ff);
+        public IEnumerable<MovieWatchedDTO> GetWatchedMovies(int idCustomer);
         CrudCinemaEnum Insert(CustomerForInsertDTO cus);
+        MessageForUserEnum InsertMovieReview(MovieReviewDTO mr, int idCustomer);
     }
 
     public class CustomerService : ICustomerService
@@ -113,9 +115,7 @@ namespace CinemaBL
 
         public MessageForUserEnum DeleteTicket(int ticketId, int idCustomer)
         {
-            // nelle'estrazione controllo anche il customer sia quello che che ha fatto la prenotazione
-            var ticket = _uow.GetTicketRep.Get(x => x.Id == ticketId && x.CustomerId == idCustomer,
-                includeProperties: nameof(MovieSchedule)).FirstOrDefault();
+            Ticket? ticket = GetTicket(ticketId, idCustomer);
 
             if (ticket != null)
             {
@@ -137,6 +137,14 @@ namespace CinemaBL
 
             return MessageForUserEnum.USER_NOT_AUTHORIZED;
         }
+
+        private Ticket? GetTicket(int ticketId, int idCustomer)
+        {
+            // nelle'estrazione controllo anche il customer sia quello che che ha fatto la prenotazione
+            return _uow.GetTicketRep.Get(x => x.Id == ticketId && x.CustomerId == idCustomer,
+                includeProperties: nameof(MovieSchedule)).FirstOrDefault();
+        }
+
 
         public IEnumerable<MovieDetailForCustomerDTO> GetMovieDetail(int idMovieSchedule)
         {
@@ -223,5 +231,38 @@ namespace CinemaBL
 
         }
 
+        public MessageForUserEnum InsertMovieReview(MovieReviewDTO mr, int idCustomer)
+        {
+            Ticket? ticket = GetTicket(mr.IdTicket, idCustomer);
+            if (ticket != null)
+            {
+                _uow.GetMovieRateRep.Insert(new MovieRate()
+                {
+                    ActorRate = mr.actorRate,
+                    AmbientRate = mr.ambientRate,
+                    CommentNote = mr.commentNote,
+                    MovieId = ticket.MovieSchedule.MovieId,
+                    TramaRate = mr.tramaRate,
+                    CustomerId = idCustomer
+                });
+                return MessageForUserEnum.YOUR_RATE_HAS_BEEN_INSERTED;
+            }
+            return MessageForUserEnum.USER_NOT_AUTHORIZED;
+        }
+
+        public IEnumerable<MovieWatchedDTO> GetWatchedMovies(int idCustomer)
+        {
+            return _uow.GetViewCustomerMovieWatchedRep.Get(x => x.CustomerId == idCustomer).Select(x => new MovieWatchedDTO()
+            {
+                Actors = x.Actors,
+                DateTicket = x.DateTicket.Value,
+                director = x.Director,
+                duration = x.Duration,
+                FilmName = x.FilmName,
+                genere = x.Genere,
+                trama = x.Trama
+            });
+
+        }
     }
 }
