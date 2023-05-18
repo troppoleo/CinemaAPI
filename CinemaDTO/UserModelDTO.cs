@@ -20,5 +20,6 @@ namespace CinemaDTO
         public string? JobQualification { get; set; }
         //public DateTime Birthdate { get; set; }
         public UserModelType UserType { get; set; }
+        public int Age { get; set; }
     }
 }

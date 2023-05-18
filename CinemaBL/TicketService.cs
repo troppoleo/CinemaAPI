@@ -34,7 +34,7 @@ namespace CinemaBL
                 // schedulazione non trovata
                 return Enums.CrudCinemaEnum.VIOLATION_MINIMUM_REQUIRED.ToString();
             }
-            // TODO:TESTARE!!
+            
             if (ms.Status.ToEnum<MovieScheduleEnum>() != MovieScheduleEnum.WAITING)
             {
                 // il film è già iniziato

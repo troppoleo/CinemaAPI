@@ -40,11 +40,11 @@ namespace CinemaAPI.Controllers
             {
                 var tokenString = _token.BuildToken(um, _conf);
 
-                if (um.JobQualification.ToEnum<JobEmployeeQualificationEnum>() == JobEmployeeQualificationEnum.OWN_SALA)
-                {
-                    //_hub.Clients.
-                    //xx.AddToGroup(um);
-                }
+                //if (um.JobQualification.ToEnum<JobEmployeeQualificationEnum>() == JobEmployeeQualificationEnum.OWN_SALA)
+                //{
+                //    //_hub.Clients.
+                //    //xx.AddToGroup(um);
+                //}
 
                 return Ok(new { token = tokenString });
             }

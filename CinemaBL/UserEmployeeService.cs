@@ -1,5 +1,6 @@
 ﻿using CinemaBL.Enums;
 using CinemaBL.Repository;
+using CinemaBL.Utility;
 using CinemaDAL.Models;
 using CinemaDTO;
 using System;
@@ -18,7 +19,7 @@ namespace CinemaBL
         CrudCinemaEnum Update(UserEmployeeDTO ue);
         //CinemaEnum AddMinimal(UsersEmployeeMinimalDTO ue);
         IEnumerable<UserEmployeeDTO>? GetAll();
-        UserEmployeeDTO? Get(int id);
+        UserEmployeeDTO? Get(int id);       
         CrudCinemaEnum Insert(UserEmployeeForInsertDTO ued);
         CrudCinemaEnum Delete(int id);
         //void Update(UsersEmployeeDTO ued);
@@ -27,10 +28,12 @@ namespace CinemaBL
     public class UserEmployeeService : IUserEmployeeService
     {
         private readonly IUnitOfWorkGeneric _uow;
+        private readonly IUserUtility _userUtility;
 
-        public UserEmployeeService(IUnitOfWorkGeneric uow)
+        public UserEmployeeService(IUnitOfWorkGeneric uow, IUserUtility userUtility)
         {
             _uow = uow;
+            _userUtility = userUtility;
         }
 
         public void AddMinimal(UserEmployeeMinimalDTO eee)
@@ -139,23 +142,41 @@ namespace CinemaBL
 
         public CrudCinemaEnum Insert(UserEmployeeForInsertDTO ued)
         {
-            var emp = _uow.GetUserEmployeeRep.Get(x => x.UserName.Trim().ToLower() == ued.UserName.Trim().ToLower());
-            if (emp != null)
+            if (_userUtility.IsUsernameAlreadyUsed(ued.UserName))
             {
-                _uow.GetUserEmployeeRep.Insert(new UserEmployee()
-                {
-                    Name = ued.Name,
-                    Surname = ued.Surname,
-                    UserName = ued.UserName,
-                    Password = ued.Password,
-                    JobQualificationId = ued.JobQualificationId,
-                    IsActive = ued.isActive
-                });
-
-                return CrudCinemaEnum.CREATED;
+                return CrudCinemaEnum.ALREADY_EXISTS;
             }
 
-            return CrudCinemaEnum.ALREADY_EXISTS;
+            _uow.GetUserEmployeeRep.Insert(new UserEmployee()
+            {
+                Name = ued.Name,
+                Surname = ued.Surname,
+                UserName = ued.UserName,
+                Password = ued.Password,
+                JobQualificationId = ued.JobQualificationId,
+                IsActive = ued.isActive
+            });
+
+            return CrudCinemaEnum.CREATED;
+
+
+            //var emp = _uow.GetUserEmployeeRep.Get(x => x.UserName.Trim().ToLower() == ued.UserName.Trim().ToLower());
+            //if (!emp.Any())
+            //{
+            //    _uow.GetUserEmployeeRep.Insert(new UserEmployee()
+            //    {
+            //        Name = ued.Name,
+            //        Surname = ued.Surname,
+            //        UserName = ued.UserName,
+            //        Password = ued.Password,
+            //        JobQualificationId = ued.JobQualificationId,
+            //        IsActive = ued.isActive
+            //    });
+
+            //    return CrudCinemaEnum.CREATED;
+            //}
+
+            //return CrudCinemaEnum.ALREADY_EXISTS;
         }
 
       

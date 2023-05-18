@@ -38,7 +38,22 @@ namespace CinemaBL.Extension
                 return default(TEnum);
             }
 
-            return (TEnum)Enum.Parse(typeof(TEnum), s, true);
+            try
+            {
+                return (TEnum)Enum.Parse(typeof(TEnum), s, true);
+            }
+            catch
+            {
+                return default(TEnum);
+            }
+
+            //TEnum result;
+            //if (Enum.TryParse(typeof(TEnum), s, true, out result))
+            //{
+            //    return result;
+            //}
+
+            //return result;
         }
 
 

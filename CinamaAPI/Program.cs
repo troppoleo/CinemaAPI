@@ -3,6 +3,7 @@ using CinemaAPI.Middleware;
 using CinemaAPI.Tasks;
 using CinemaBL;
 using CinemaBL.Repository;
+using CinemaBL.Utility;
 using CinemaDAL.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -33,6 +34,8 @@ builder.Services.AddTransient<IJobEmployeeQualificationService, JobEmployeeQuali
 builder.Services.AddTransient<IMovieScheduleService, MovieScheduleService>();
 builder.Services.AddTransient<IReviewService, ReviewService>();
 builder.Services.AddTransient<ITicketService, TicketService>();
+builder.Services.AddTransient<ICustomerService, CustomerService>();
+builder.Services.AddTransient<IUserUtility, UserUtility>();
 
 
 // questa serve per i messaggi HUB

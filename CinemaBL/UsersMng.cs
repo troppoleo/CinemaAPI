@@ -1,4 +1,5 @@
 ﻿using AutoMapper.Internal.Mappers;
+using CinemaBL.Repository;
 using CinemaDAL.Models;
 using CinemaDTO;
 using Microsoft.EntityFrameworkCore;
@@ -29,10 +30,12 @@ namespace CinemaBL
     public class UsersMng : IUsersMng
     {
         private readonly CinemaContext _ctx;
+        private readonly IUnitOfWorkGeneric _uow;
 
-        public UsersMng(CinemaDAL.Models.CinemaContext ctx)
+        public UsersMng(CinemaDAL.Models.CinemaContext ctx, IUnitOfWorkGeneric uow)
         {
             _ctx = ctx;
+            _uow = uow;
         }
 
 
@@ -69,7 +72,21 @@ namespace CinemaBL
                 };
             }
 
-            // TODO: verifico se è un "CUSTOMER"             
+            // verifico se è un "CUSTOMER"             
+            var cs = _uow.GetCustomerRep.Get(x => x.UserName == loginModel.UserName && x.Password == loginModel.Password).FirstOrDefault();
+            if (cs is not null)
+            {
+                var dd = DateTime.Now.Subtract(cs.Birthdate);
+
+                return new UserModelDTO()
+                {
+                    UserType = UserModelDTO.UserModelType.CUSTOMER,
+                    UserName = cs.UserName,
+                    Id = cs.Id,
+                    Age = (int)Math.Truncate(dd.TotalDays / 365)
+                };
+            }
+
 
             // utente non trovato:
             return null;

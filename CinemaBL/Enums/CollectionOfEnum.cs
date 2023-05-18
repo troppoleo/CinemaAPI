@@ -32,6 +32,17 @@ namespace CinemaBL.Enums
         IS_NOT_APPROVED = 0
     }
 
+    public enum MovieGenereEnum
+    {
+        NONE,
+        DRAMMATICO,
+        AZIONE,
+        THRILLER,
+        ROMANTICO,
+        COMMEDIA,
+        EROTICO        
+    }
+
     public enum JobEmployeeQualificationEnum
     {
         /// <summary>

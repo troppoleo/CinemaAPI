@@ -103,13 +103,12 @@ public partial class CinemaContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("name");
-            entity.Property(e => e.Password)
-                .HasMaxLength(100)
-                .HasColumnName("password");
+            entity.Property(e => e.Password).HasMaxLength(200);
             entity.Property(e => e.Surname)
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("surname");
+            entity.Property(e => e.UserName).HasMaxLength(50);
         });
 
         modelBuilder.Entity<JobEmployeeQualification>(entity =>

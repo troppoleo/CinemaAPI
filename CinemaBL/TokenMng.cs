@@ -44,14 +44,17 @@ namespace CinemaBL
                 case UserModelDTO.UserModelType.EMPLOYEE:
                     llClaim.AddRange(new[]
                     { 
-                        //new Claim(JwtRegisteredClaimNames.Birthdate, um.Birthdate.ToString("yyyy-MM-dd")),
-                        new Claim(um.JobQualification, "true"),     // policy!! [Authorize(Roles = "EMPLOYEE", Policy = "OWN_SALA")]
+                        new Claim(um.JobQualification, "true"),     // policy!! [Authorize(..., Policy = "OWN_SALA")]
                         new Claim(nameof(um.JobQualification), um.JobQualification)
                     });                    
 
                     break;
 
                 case UserModelDTO.UserModelType.CUSTOMER:
+                    llClaim.AddRange(new[]
+                    { 
+                        new Claim(nameof(um.Age), um.Age.ToString())
+                    });
                     break;
                 default:
                     break;
