@@ -25,7 +25,7 @@ namespace CinemaAPI.Controllers
 
 
         [HttpPost]
-        [Route("Insert"), AllowAnonymous]
+        [Route("Insert")]
         public IActionResult Insert(MovieScheduleForInsertDTO ms)
         {
             return Ok(_mss.Insert(ms).ToString());
@@ -33,7 +33,7 @@ namespace CinemaAPI.Controllers
         }
 
         [HttpPatch]
-        [Route("Update"), AllowAnonymous]
+        [Route("Update")]
         public IActionResult Update(MovieScheduleForUpdateDTO ms)
         {
             var result = _mss.Update(ms);
@@ -57,7 +57,7 @@ namespace CinemaAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("GetDirect"), AllowAnonymous]
+        [Route("GetDirect")]
         public IActionResult GetDirect(DateTime dateTime)
         {
             return Ok(_mss.GetDirect(dateTime));

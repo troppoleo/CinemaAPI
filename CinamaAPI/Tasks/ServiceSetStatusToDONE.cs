@@ -40,8 +40,8 @@ namespace CinemaAPI.Tasks
             // now do your work
 
             var movSched = ctx.MovieSchedules.Include(x => x.Movie).Include(x => x.Tickets)
-                .Where(x => x.IsApproved == 1 
-                && x.Status != MovieScheduleEnum.DONE.ToString()
+                .Where(x => //x.IsApproved == 1 &&      // IL CAMBIO DI STATO è INDIPENDENTE da se è approvato o meno
+                x.Status != MovieScheduleEnum.DONE.ToString()
                 && x.Status != MovieScheduleEnum.CANCELLED.ToString()).ToList();
 
             foreach (var sm in movSched)
@@ -50,15 +50,40 @@ namespace CinemaAPI.Tasks
 
                 if (CheckIfMovieIsDone(sm))
                 {
-                    sm.Status = MovieScheduleEnum.DONE.ToString();
+                    if (sm.IsApproved == 1)
+                    {
+                        // solo se è stato approvato ha senso metterlo in DONE
+                        sm.Status = MovieScheduleEnum.DONE.ToString();
+                    }
+                    else
+                    {
+                        // se non è stato apporvato mi sembra corretto cancellarlo
+                        sm.Status = MovieScheduleEnum.CANCELLED.ToString();
+                    }
                 }
                 else if (CheckIfMovieIsInCleaning(sm))
                 {
-                    sm.Status = MovieScheduleEnum.CLEAN_TIME.ToString();
+                    if (sm.IsApproved == 1)
+                    {
+                        sm.Status = MovieScheduleEnum.CLEAN_TIME.ToString();
+                    }
+                    else
+                    {
+                        // se non è stato apporvato mi sembra corretto cancellarlo
+                        sm.Status = MovieScheduleEnum.CANCELLED.ToString();
+                    }
                 }
                 else if (CheckIsMovieInProgress(sm))
                 {
-                    sm.Status = MovieScheduleEnum.IN_PROGRESS.ToString();
+                    if (sm.IsApproved == 1)
+                    {
+                        sm.Status = MovieScheduleEnum.IN_PROGRESS.ToString();
+                    }
+                    else
+                    {
+                        // se non è stato apporvato mi sembra corretto cancellarlo
+                        sm.Status = MovieScheduleEnum.CANCELLED.ToString();
+                    }
                 }
 
                 switch (sm.Status.ToEnum<MovieScheduleEnum>())

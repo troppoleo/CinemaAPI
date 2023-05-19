@@ -56,7 +56,7 @@ namespace CinemaAPI.Controllers
         /// <param name="cc"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("InsertWithOwn"), AllowAnonymous]
+        [Route("InsertWithOwn")]
         public IActionResult InsertWithOwn(CinemaDTO.CinemaRoomForInsertWithOwnDTO cc)
         {
             return Ok(_cr.InsertWithOwn(cc).ToString());
@@ -68,7 +68,7 @@ namespace CinemaAPI.Controllers
         /// Se viene eliminata, il Responsabile di Sala NON viene eliminato ma rimane “libero”  
         /// </summary>
         [HttpDelete]
-        [Route("Delete/{id}"), AllowAnonymous]
+        [Route("Delete/{id}")]
         public ActionResult<string> Delete(int id)
         {
             return _cr.Delete(id).ToString();
@@ -79,7 +79,7 @@ namespace CinemaAPI.Controllers
         ///         in quella sala o Il numero e il nome (facoltativo) devono essere unici
         ///	Il numero può essere cambiato ma non può essere< 1 
         [HttpPatch]
-        [Route("Update"), AllowAnonymous]
+        [Route("Update")]
         public ActionResult<string> Update([FromBody] CinemaDTO.CinemaRoomDTO cc)
         {
             var result = _cr.Update(cc);

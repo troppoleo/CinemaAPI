@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using static CinemaBL.CinemaRoomService;
 
 namespace CinemaBL
@@ -60,7 +61,7 @@ namespace CinemaBL
                 Id = r.Id,
                 MaxStdSeat = r.MaxStdSeat,
                 MaxVipSeat = r.MaxVipSeat,
-                RoomName = r.RoomName,      
+                RoomName = r.RoomName,
             };
         }
 
@@ -87,7 +88,7 @@ namespace CinemaBL
         public CrudCinemaEnum Update(CinemaRoomDTO cRoom)
         {
             if (_uow.GetCinemaRoomRep.GetByIdAndFillMovieSchedule(cRoom.Id, out var cr2))
-            {                
+            {
                 // verifico se il film è stato schedulato 
                 // e se stanno cercando di cambiare il numero di posti vip
                 if (cr2.MovieSchedules.Count > 0
@@ -116,7 +117,7 @@ namespace CinemaBL
                 cr.RoomName = cRoom.RoomName;
 
                 var crossToUpdate = _uow.GetCinemaRoomCrossUserEmployeeRep.Get(x => x.CinemaRoomId == cRoom.Id, includeProperties: nameof(UserEmployee)).FirstOrDefault();
-                
+
                 if (crossToUpdate != null)
                 {
                     var crossNew = _uow.GetUserEmployeeRep.GetByID(cRoom.userEmployeeId);
@@ -130,7 +131,7 @@ namespace CinemaBL
                     crossToUpdate.UserEmployeeId = cRoom.userEmployeeId;
                     _uow.GetCinemaRoomCrossUserEmployeeRep.Update(crossToUpdate);
                 }
-                
+
                 _uow.GetCinemaRoomRep.Update(cr);
                 return CrudCinemaEnum.UPDATED;
             }
@@ -141,25 +142,72 @@ namespace CinemaBL
 
         public CrudCinemaEnum Delete(int idCinemaRoom)
         {
+            var iii = _uow.GetCinemaRoomRep.Get(x => x.Id == idCinemaRoom, includeProperties: nameof(CinemaRoom.MovieSchedules)).FirstOrDefault();
 
-            var cr = _uow.GetCinemaRoomRep.GetByID(idCinemaRoom);
-            if (cr is null)
+            if (iii == null)
             {
                 return CrudCinemaEnum.NOT_FOUND;
             }
 
-            ///	Una sala NON può essere eliminata se c’è un film programmato in quella sala 
-            ///	prima verifico se c'è una schedulazione:            
-            if (_uow.GetMovieScheduleRep.GetByID(idCinemaRoom, out var entity))
+
+            if (iii.MovieSchedules.Where(x => CheckStatusIsActive(x.Status)).Any())
             {
-                if (entity.Status.ToEnum<MovieScheduleEnum>() != MovieScheduleEnum.DONE)
-                {
-                    return CrudCinemaEnum.VIOLATION_MINIMUM_REQUIRED;
-                }
+                return CrudCinemaEnum.VIOLATION_MINIMUM_REQUIRED;
             }
 
-            _uow.GetCinemaRoomRep.Delete(cr);
+            _uow.GetCinemaRoomRep.Delete(iii);
             return CrudCinemaEnum.DELETED;
+
+
+
+            //var cr = _uow.GetCinemaRoomRep.GetByID(idCinemaRoom);
+            //if (cr is null)
+            //{
+            //    return CrudCinemaEnum.NOT_FOUND;
+            //}
+
+            /////	Una sala NON può essere eliminata se c’è un film programmato in quella sala 
+            /////	prima verifico se c'è una schedulazione:            
+            ////_uow.GetMovieScheduleRep.Get
+            //if (_uow.GetMovieScheduleRep.GetByID(idCinemaRoom, out var entity))
+            //{
+            //    if (entity.Status.ToEnum<MovieScheduleEnum>() != MovieScheduleEnum.DONE)
+            //    {
+            //        return CrudCinemaEnum.VIOLATION_MINIMUM_REQUIRED;
+            //    }
+            //}
+
+            //_uow.GetCinemaRoomRep.Delete(cr);
+            //return CrudCinemaEnum.DELETED;
+        }
+
+
+        /// <summary>
+        /// controlla se è in uno stato attivo o completo
+        /// </summary>
+        /// <param name="status"></param>
+        /// <returns></returns>
+        private bool CheckStatusIsActive(string? status)
+        {
+            if (status == null)
+            {
+                return false;
+            }
+
+            MovieScheduleEnum mse = status.ToEnum<MovieScheduleEnum>();
+
+            switch (mse)
+            {
+                case MovieScheduleEnum.WAITING:
+                case MovieScheduleEnum.IN_PROGRESS:
+                case MovieScheduleEnum.CLEAN_TIME:
+                    return true;
+                case MovieScheduleEnum.DONE:
+                case MovieScheduleEnum.CANCELLED:
+                    return false;
+            }
+
+            return false;
         }
 
         private bool CheckStatusIsDone(string status)
@@ -238,7 +286,7 @@ namespace CinemaBL
             {
                 MaxStdSeat = cRoom.MaxStdSeat,
                 MaxVipSeat = cRoom.MaxVipSeat,
-                RoomName = cRoom.RoomName,           
+                RoomName = cRoom.RoomName,
             };
 
             _uow.GetCinemaRoomRep.Insert(cr);
