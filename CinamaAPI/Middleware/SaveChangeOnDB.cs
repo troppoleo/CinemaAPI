@@ -87,11 +87,11 @@ namespace CinemaAPI.Middleware
         //    }
         //}
 
-        public async Task InvokeAsync(HttpContext context, /*IUnitOfWork uow, */ IUnitOfWorkGeneric uowg)
+        public async Task InvokeAsync(HttpContext context, IUnitOfWorkGeneric uow)
         {
             await _next(context);
 
-            uowg.Save();
+            uow.Save();
 
             //try
             //{

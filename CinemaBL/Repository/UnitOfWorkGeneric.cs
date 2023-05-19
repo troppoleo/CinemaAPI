@@ -34,7 +34,12 @@ namespace CinemaBL.Repository
 
     public class UnitOfWorkGeneric : IDisposable, IUnitOfWorkGeneric
     {
-        private CinemaContext context = new CinemaContext();
+        private readonly CinemaContext context;
+        public UnitOfWorkGeneric(CinemaContext ctx)
+        {
+            context = ctx;
+        }
+
         private GenericRepository<UserEmployee> userEmployeeRepository;
         private UserEmployeeRep userEmployeeExt;
         private CinemaRoomRep cinemaRoom;
