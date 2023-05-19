@@ -238,16 +238,29 @@ namespace CinemaBL
             {
                 _uow.GetMovieRateRep.Insert(new MovieRate()
                 {
-                    ActorRate = mr.actorRate,
-                    AmbientRate = mr.ambientRate,
-                    CommentNote = mr.commentNote,
-                    MovieId = ticket.MovieSchedule.MovieId,
-                    TramaRate = mr.tramaRate,
+                    ActorRate = CheckValueInRange(mr.actorRate),
+                    AmbientRate = CheckValueInRange(mr.ambientRate),
+                    TramaRate = CheckValueInRange(mr.tramaRate),
+                    CommentNote = mr.commentNote,                    
+                    MovieId = ticket.MovieSchedule.MovieId,                    
                     CustomerId = idCustomer
                 });
                 return MessageForUserEnum.YOUR_RATE_HAS_BEEN_INSERTED;
             }
             return MessageForUserEnum.USER_NOT_AUTHORIZED;
+        }
+
+        private int CheckValueInRange(int actorRate)
+        {
+            if (actorRate < 0)
+            {
+                return 1;
+            }
+            if (actorRate > 5)
+            {
+                return 5;
+            }
+            return 1;
         }
 
         public IEnumerable<MovieWatchedDTO> GetWatchedMovies(int idCustomer)
