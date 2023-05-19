@@ -45,14 +45,13 @@ namespace CinemaBL
 
         public CrudCinemaEnum Delete(int id)
         {            
-            // controlla che non ci siano employee con la qualifica che da eliminare
-            var empl = _uow.GetUserEmployeeRep.Get(x => x.JobQualificationId == id);
-            if (empl != null)
+            // controlla che non ci siano employee con la qualifica che da eliminare            
+            if (_uow.GetUserEmployeeRep.Get(x => x.JobQualificationId == id).Any())
             {
                 return CrudCinemaEnum.VIOLATION_MINIMUM_REQUIRED;
             }
 
-            var itemToDelete = _uow.GetJobEmployeeQualificationRep.Get(x => x.Id == id).FirstOrDefault();
+            var itemToDelete = _uow.GetJobEmployeeQualificationRep.GetByID(id);
 
             if (itemToDelete != null)
             {

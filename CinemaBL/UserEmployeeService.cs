@@ -19,7 +19,7 @@ namespace CinemaBL
         CrudCinemaEnum Update(UserEmployeeDTO ue);
         //CinemaEnum AddMinimal(UsersEmployeeMinimalDTO ue);
         IEnumerable<UserEmployeeDTO>? GetAll();
-        UserEmployeeDTO? Get(int id);       
+        UserEmployeeDTO? Get(int id);
         CrudCinemaEnum Insert(UserEmployeeForInsertDTO ued);
         CrudCinemaEnum Delete(int id);
         //void Update(UsersEmployeeDTO ued);
@@ -75,69 +75,119 @@ namespace CinemaBL
 
         public CrudCinemaEnum Delete(int id)
         {
-            var item = _uow.GetUserEmployeeRep.Get(x => x.Id == id).FirstOrDefault();
-            if (item != null)
+            var empl = _uow.GetUserEmployeeRep.Get(x => x.Id == id, includeProperties: nameof(UserEmployee.JobQualification)).FirstOrDefault();
+            if (empl == null)
             {
-                var jobEmplQual = _uow.GetJobEmployeeQualificationRep.Get(x => x.Id == item.JobQualificationId).FirstOrDefault();
-                if (jobEmplQual is not null && jobEmplQual.MinimumRequired.HasValue)
-                {
-                    if (_uow.GetUserEmployeeRep.Get(x => x.JobQualificationId == item.JobQualificationId).Count() >= jobEmplQual.MinimumRequired.Value)
-                    {
-                        _uow.GetUserEmployeeRep.Delete(item);
+                return CrudCinemaEnum.NOT_FOUND;
+            }
+
+            switch (empl.JobQualification.Id)
+            {
+                case (int)JobEmployeeQualificationEnum.OWN_SALA:
+                    // controllo che non sia associato a nessuna sala
+                    if (!_uow.GetCinemaRoomCrossUserEmployeeRep.Get(x => x.UserEmployeeId == empl.Id).Any())
+                    {                        
+                        _uow.GetUserEmployeeRep.Delete(empl);
                         return CrudCinemaEnum.DELETED;
                     }
+                    break;
 
-                    if (jobEmplQual is not null && jobEmplQual.Id == (int)JobEmployeeQualificationEnum.OWN_SALA)
-                    {
-                        if (!_uow.GetCinemaRoomCrossUserEmployeeRep.Get(x => x.UserEmployeeId == item.Id).Any())
-                        {
-                            _uow.GetUserEmployeeRep.Delete(item);
-                            return CrudCinemaEnum.DELETED;
-                        }
+                case (int)JobEmployeeQualificationEnum.GET_TICKET:
+                    //•	Per i Bigliettai, se ce ne sono almeno 2 attivi (in modo da rimanere “coperti”) 
+                    var bigliettai = _uow.GetUserEmployeeRep.Get(x => x.JobQualificationId == empl.JobQualificationId).Count();
+                    if (bigliettai > empl.JobQualification.MinimumRequired)
+                    {                     
+                        _uow.GetUserEmployeeRep.Delete(empl);
+                        return CrudCinemaEnum.DELETED;
                     }
+                    break;
 
-                    return CrudCinemaEnum.VIOLATION_MINIMUM_REQUIRED;
-                }
+                default:    // eventuali altri tipi di impiego
+                    _uow.GetUserEmployeeRep.Delete(empl);
+                    return CrudCinemaEnum.DELETED;
             }
-            return CrudCinemaEnum.NOT_FOUND;
+
+            return CrudCinemaEnum.VIOLATION_MINIMUM_REQUIRED;
+
+
+            //var item = _uow.GetUserEmployeeRep.Get(x => x.Id == id).FirstOrDefault();
+            //if (item != null)
+            //{
+            //    var jobEmplQual = _uow.GetJobEmployeeQualificationRep.Get(x => x.Id == item.JobQualificationId).FirstOrDefault();
+            //    if (jobEmplQual is not null && jobEmplQual.MinimumRequired.HasValue)
+            //    {
+            //        // verifica se c'è il requisito minimo di impiegati con quella qualifica
+            //        if (_uow.GetUserEmployeeRep.Get(x => x.JobQualificationId == item.JobQualificationId).Count() > jobEmplQual.MinimumRequired.Value)
+            //        {
+            //            _uow.GetUserEmployeeRep.Delete(item);
+            //            return CrudCinemaEnum.DELETED;
+            //        }
+
+            //        if (jobEmplQual is not null && jobEmplQual.Id == (int)JobEmployeeQualificationEnum.OWN_SALA)
+            //        {
+            //            if (!_uow.GetCinemaRoomCrossUserEmployeeRep.Get(x => x.UserEmployeeId == item.Id).Any())
+            //            {
+            //                _uow.GetUserEmployeeRep.Delete(item);
+            //                return CrudCinemaEnum.DELETED;
+            //            }
+            //        }
+
+            //        return CrudCinemaEnum.VIOLATION_MINIMUM_REQUIRED;
+            //    }
+            //}
+            //return CrudCinemaEnum.NOT_FOUND;
         }
 
         public CrudCinemaEnum Update(UserEmployeeDTO ue)
         {
-            var item = _uow.GetUserEmployeeRep.Get(x => x.Id == ue.Id).FirstOrDefault();
-
-            if (item != null)
+            var empl = _uow.GetUserEmployeeRep.Get(x => x.Id == ue.Id, includeProperties: nameof(UserEmployee.JobQualification)).FirstOrDefault();
+            
+            if (empl == null)
             {
-                var jobEmplQual = _uow.GetJobEmployeeQualificationRep.Get(x => x.Id == item.JobQualificationId).FirstOrDefault();
-                if (jobEmplQual is not null && jobEmplQual.MinimumRequired.HasValue)
-                {
-                    item.UserName = ue.UserName;
-                    item.Password = ue.Password;
-                    item.JobQualificationId = ue.JobQualificationId;
-                    item.Name = ue.Name;
-                    item.Surname = ue.Surname;
-                    item.IsActive = ue.isActive;
-
-                    if (_uow.GetUserEmployeeRep.Get(x => x.JobQualificationId == item.JobQualificationId).Count() >= jobEmplQual.MinimumRequired.Value)
-                    {
-                        _uow.GetUserEmployeeRep.Update(item);
-                        return CrudCinemaEnum.UPDATED;
-                    }
-
-                    if (jobEmplQual is not null && jobEmplQual.Id == (int)JobEmployeeQualificationEnum.OWN_SALA)
-                    {
-                        if (!_uow.GetCinemaRoomCrossUserEmployeeRep.Get(x => x.UserEmployeeId == item.Id).Any())
-                        {
-                            _uow.GetUserEmployeeRep.Update(item);
-                            return CrudCinemaEnum.UPDATED;
-                        }
-                    }
-
-                    return CrudCinemaEnum.VIOLATION_MINIMUM_REQUIRED;
-                }
+                return CrudCinemaEnum.NOT_FOUND;
             }
 
-            return CrudCinemaEnum.NOT_FOUND;
+
+            switch (empl.JobQualification.Id)
+            {
+                case (int)JobEmployeeQualificationEnum.OWN_SALA:
+                    // controllo che non sia associato a nessuna sala
+                    if (!_uow.GetCinemaRoomCrossUserEmployeeRep.Get(x => x.UserEmployeeId == empl.Id).Any())
+                    {
+                        UpdateProperty(ue, empl);
+                        _uow.GetUserEmployeeRep.Update(empl);
+                        return CrudCinemaEnum.UPDATED;
+                    }
+                    break;
+
+                case (int)JobEmployeeQualificationEnum.GET_TICKET:
+                    //•	Per i Bigliettai, se ce ne sono almeno 2 attivi (in modo da rimanere “coperti”) 
+                    var bigliettai = _uow.GetUserEmployeeRep.Get(x => x.JobQualificationId == empl.JobQualificationId).Count();
+                    if (bigliettai > empl.JobQualification.MinimumRequired)
+                    {
+                        UpdateProperty(ue, empl);
+                        _uow.GetUserEmployeeRep.Update(empl);
+                        return CrudCinemaEnum.UPDATED;
+                    }
+                    break;
+
+                default:    // eventuali altri tipi di impiego
+                    UpdateProperty(ue, empl);
+                    _uow.GetUserEmployeeRep.Update(empl);
+                    return CrudCinemaEnum.UPDATED;                   
+            }
+
+            return CrudCinemaEnum.VIOLATION_MINIMUM_REQUIRED;    
+        }
+
+        private static void UpdateProperty(UserEmployeeDTO ue, UserEmployee? item)
+        {
+            item.UserName = ue.UserName;
+            item.Password = ue.Password;
+            item.JobQualificationId = ue.JobQualificationId;
+            item.Name = ue.Name;
+            item.Surname = ue.Surname;
+            item.IsActive = ue.isActive;
         }
 
         public CrudCinemaEnum Insert(UserEmployeeForInsertDTO ued)
@@ -179,7 +229,7 @@ namespace CinemaBL
             //return CrudCinemaEnum.ALREADY_EXISTS;
         }
 
-      
+
 
 
 

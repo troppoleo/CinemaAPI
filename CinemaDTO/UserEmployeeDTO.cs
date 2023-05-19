@@ -37,7 +37,7 @@ namespace CinemaDTO
         public int Id { get; set; }
         public string Name { get; set; }
         public string Surname { get; set; }
-        public DateTime Birthdate { get; set; }
+        //public DateTime Birthdate { get; set; }
        // public int cinemaRoomId { get; set; }
         public int isActive { get; set; }
     }

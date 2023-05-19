@@ -45,7 +45,7 @@ namespace CinemaAPI.Controllers
         [Route("Delete/{id}")]
         public IActionResult Delete(int id)
         {
-            return Ok(_uu.Delete(id));
+            return Ok(_uu.Delete(id).ToString());
         }
 
         [HttpGet]
