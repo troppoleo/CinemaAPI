@@ -1,7 +1,9 @@
-﻿using CinemaBL.Enums;
+﻿using CinemaAPI.Hubs;
+using CinemaBL.Enums;
 using CinemaBL.Extension;
 using CinemaBL.Repository;
 using CinemaDAL.Models;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,13 +16,18 @@ namespace CinemaAPI.Tasks
 
         private IConfiguration _conf;
         private int _timeToClean;
+        private readonly IHubContext<CinemaHub> _hub;
+
+        //private readonly INotify _nf;
         private readonly IServiceScopeFactory _ssf;
 
-        public ServiceSetStatusToDONE(IServiceScopeFactory ssf, IConfiguration conf)
+        public ServiceSetStatusToDONE(IServiceScopeFactory ssf, IConfiguration conf, IHubContext<CinemaHub> hub /*, INotify nf*/ )
         {
             _ssf = ssf;
             _conf = conf;
             _timeToClean = int.Parse(_conf["Generic:CleaninigTime"]);
+            //_nf = nf;   
+            _hub = hub;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -102,6 +109,13 @@ namespace CinemaAPI.Tasks
                 // verifico se ho cambiato lo stato
                 if (originalStatus != sm.Status)
                 {
+                    await _hub.Clients.Group(CinemaDTO.UserModelDTO.UserModelType.ADMIN.ToString()).SendAsync("ReceiveScheduledMovie", new
+                    {
+                        movieScheduleID = sm.Id,
+                        Status = sm.Status
+                    });
+
+                    //_nf.SendMessageToAdmin();
                     ctx.MovieSchedules.Update(sm);
                 }
             }

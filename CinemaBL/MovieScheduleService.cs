@@ -14,6 +14,7 @@ namespace CinemaBL
 {
     public interface IMovieScheduleService
     {
+        CrudCinemaEnum ApproveSchedule(int movieScheduleId);
         IEnumerable<object> GetDirect(DateTime dateTime);
         CrudCinemaEnum Insert(MovieScheduleForInsertDTO ms);
         CrudCinemaEnum Update(MovieScheduleForUpdateDTO ms);
@@ -37,12 +38,17 @@ namespace CinemaBL
             var sh = _uow.GetMovieScheduleRep.GetByID(ms.Id);
             if (sh != null)
             {
+                if (sh.IsApproved.ToEnum<Enums.MovieApprovedStatusEnum>() == MovieApprovedStatusEnum.IS_APPROVED)
+                {
+                    return CrudCinemaEnum.VIOLATION_MINIMUM_REQUIRED;
+                }
+
                 if (CheckSlot(ms, sh.Id) == CrudCinemaEnum.CREATED)     // non crea nulla serve solo se è valido il nuovo censimento
                 {
                     sh.MovieId = ms.MovieId;
                     sh.CinemaRoomId = ms.CinemaRoomId;
                     sh.StartDate = ms.StartDate;
-                    sh.IsApproved = ms.IsApproved;
+                    //sh.IsApproved = ms.IsApproved;
 
                     // non ha senso che siano modificabili
                     //sh.VipSeat = ms.VipSeat;
@@ -257,6 +263,19 @@ namespace CinemaBL
                 $"{nameof(MovieSchedule.Movie)},{nameof(MovieSchedule.CinemaRoom)}");
 
             return ss.Select(x => new { x.StartDate, x.Movie.FilmName, x.CinemaRoom.RoomName, x.Status });
+        }
+
+        public CrudCinemaEnum ApproveSchedule(int movieScheduleId)
+        {
+            var ms = _uow.GetMovieScheduleRep.GetByID(movieScheduleId);
+            if (ms == null)
+            {
+                return CrudCinemaEnum.NOT_FOUND;
+            }
+
+            ms.IsApproved = 1;
+            _uow.Save();
+            return CrudCinemaEnum.UPDATED;
         }
     }
 

@@ -1,6 +1,7 @@
 ﻿using CinemaAPI.Hubs;
 using CinemaBL;
 using CinemaBL.Repository;
+using CinemaDAL.Models;
 using CinemaDTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -38,18 +39,31 @@ namespace CinemaAPI.Controllers
         {
             var result = _mss.Update(ms);
 
-            if (ms.IsApproved == 1)
-            {
-                switch (result)
-                {
-                    case CinemaBL.Enums.CrudCinemaEnum.UPDATED:
-                        _nf.SendMessageToGET_TICKET(ms.Id);
-                        break;
-                }
-            }
-            return Ok(result.ToString());  
-
+            //if (ms.IsApproved == 1)
+            //{
+            //    switch (result)
+            //    {
+            //        case CinemaBL.Enums.CrudCinemaEnum.UPDATED:
+            //            _nf.SendMessageToGET_TICKET(ms.Id);
+            //            break;
+            //    }
+            //}
+            return Ok(result.ToString());
         }
+
+
+        [HttpPatch]
+        [Route("ApproveSchedule/{movieScheduleId}")]
+        public IActionResult ApproveSchedule(int movieScheduleId)
+        {
+            var result = _mss.ApproveSchedule(movieScheduleId);
+            if (result == CinemaBL.Enums.CrudCinemaEnum.UPDATED)
+            {
+                _nf.SendMessageToGET_TICKET(movieScheduleId);
+            }
+            return Ok(result.ToString());
+        }
+
 
         /// <summary>
         /// visualizza i film della giornata a partire dall'orario indicato

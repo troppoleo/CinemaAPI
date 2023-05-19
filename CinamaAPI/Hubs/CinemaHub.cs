@@ -26,7 +26,7 @@ namespace CinemaAPI.Hubs
 
 
 
-        [Authorize(Roles = "EMPLOYEE", Policy = "OWN_SALA")]
+        //[Authorize(Roles = "EMPLOYEE", Policy = "OWN_SALA")]  // questo viene fatto a priori
         public override async Task<Task> OnConnectedAsync()
         {
             UserModelDTO um = new UserModelDTO();
@@ -36,6 +36,9 @@ namespace CinemaAPI.Hubs
             switch (rule)
             {
                 case UserModelType.ADMIN:
+                    //string IdAdmin = cu.Claims.FirstOrDefault(c => c.Type == nameof(um.Id)).Value;
+                    await Groups.AddToGroupAsync(Context.ConnectionId, UserModelType.ADMIN.ToString());
+                    _nf.SendMessageToAdmin();
                     break;
 
                 case UserModelType.EMPLOYEE:

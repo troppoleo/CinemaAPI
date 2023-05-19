@@ -18,11 +18,12 @@ namespace CinemaDTO
     public class MovieScheduleForUpdateDTO : MovieScheduleForInsertDTO
     {
         public int Id { get; set; }
-        public int? IsApproved { get; set; }
+        
     }
 
     public class MovieScheduleDTO : MovieScheduleForUpdateDTO
-    {        
+    {
+        public int? IsApproved { get; set; }
         public int? StdSeat { get; set; }
         public int? VipSeat { get; set; }
     }
