@@ -7,6 +7,7 @@ using CinemaBL.Utility;
 using CinemaDAL.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
@@ -218,7 +219,8 @@ app.MySaveChangeOnDB();
 
 // gestione delle eccezioni
 app.MyCatchException();
-
+// questa è una versine più estesa ma tengo la mia per semplicità
+//app.UseMiddleware<ExceptionHandlerCustom>(app.Services.GetService<ILoggerFactory>());
 
 app.Run();
 /*
